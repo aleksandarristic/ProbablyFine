@@ -37,6 +37,40 @@ For substantial work, update `.project-tasks/`:
 - keep `current-sprint.md` aligned with active scope
 - append decisions/progress in `audit-log.md`
 
+## Project Management System
+
+Project management for this repository lives under `.project-tasks/` and is the
+source of truth for planning, execution state, and historical decisions.
+
+### Conventions
+
+- Task ID format: `PF-###`
+- Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`
+- Priority values: `P0`, `P1`, `P2`
+- Type values:
+  - `DET` for deterministic-only implementation
+  - `LLM` where bounded Codex/LLM assistance is allowed
+
+### Canonical Files
+
+- `.project-tasks/roadmap.md`: phase-level delivery plan
+- `.project-tasks/backlog.md`: canonical task list with dependencies and acceptance criteria
+- `.project-tasks/current-sprint.md`: active scope and exit criteria
+- `.project-tasks/audit-log.md`: chronological record of decisions and meaningful changes
+- `.project-tasks/open-questions.md`: unresolved decisions that can affect implementation
+- `.project-tasks/README.md`: formatting and update rules for this system
+
+### Operating Workflow
+
+For each meaningful scope or status change:
+1. Update task state in `.project-tasks/backlog.md`.
+2. Update `.project-tasks/current-sprint.md` when active scope changes.
+3. Append a dated entry to `.project-tasks/audit-log.md`.
+
+Keep acceptance criteria explicit in backlog task cards. If execution is blocked
+by unresolved design or policy choices, record it in `.project-tasks/open-questions.md`
+and reference the relevant task IDs.
+
 ## Change Safety
 
 - Avoid destructive git commands unless explicitly requested.
