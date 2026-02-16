@@ -35,6 +35,27 @@ Planned behaviors:
 - Write all reports under `.probablyfine/reports/<date>/`.
 - Preserve an audit trail per run.
 
+## Starter Template
+
+A starter `.probablyfine` bundle is available at:
+
+- `templates/probablyfine-starter/.probablyfine/`
+
+Bootstrap a target repo:
+
+```bash
+cp -R templates/probablyfine-starter/.probablyfine /path/to/target-repo/
+```
+
+Then edit:
+- `/path/to/target-repo/.probablyfine/context.json`
+- `/path/to/target-repo/.probablyfine/config.json`
+
+Template includes:
+- starter environment context (`context.json`)
+- starter processing/source config (`config.json`)
+- sample report snapshots under `.probablyfine/reports/2026-02-16/`
+
 ## Architecture (Planned)
 
 Pipeline stages:

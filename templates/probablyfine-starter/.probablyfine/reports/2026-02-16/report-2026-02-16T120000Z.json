@@ -1,0 +1,25 @@
+{
+  "summary": {
+    "total": 0,
+    "severity_counts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "unknown": 0
+    },
+    "threat_counts": {
+      "A": 0,
+      "F": 0,
+      "P": 0,
+      "U": 0,
+      "X": 0
+    },
+    "source_counts": {
+      "Both": 0,
+      "ECR-only": 0,
+      "Dependabot-only": 0
+    }
+  },
+  "findings": []
+}

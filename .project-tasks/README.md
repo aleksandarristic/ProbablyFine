@@ -20,6 +20,11 @@ This directory is the audit trail and project-management source for the
 - `audit-log.md`: chronological change and decision log
 - `open-questions.md`: unresolved decisions that can block implementation
 
+## Backlog Style
+
+- Backlog and open questions use section/card style markdown (no raw tables).
+- Each task/question should remain directly readable in plain text.
+
 ## Update Rule
 
 For every meaningful scope/status change:

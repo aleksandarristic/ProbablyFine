@@ -1,0 +1,32 @@
+{
+  "schema_version": "0.1.0",
+  "component_name": "probablyfine",
+  "sources": {
+    "github": {
+      "dependabot": {
+        "enabled": true,
+        "repository": "org/repo",
+        "api_base": "https://api.github.com"
+      }
+    },
+    "aws": {
+      "ecr": {
+        "enabled": true,
+        "region": "us-east-1",
+        "registry_id": "123456789012",
+        "repository": "probablyfine/service",
+        "image": {
+          "type": "tag",
+          "value": "prod-latest"
+        },
+        "image_uri": "123456789012.dkr.ecr.us-east-1.amazonaws.com/probablyfine/service:prod-latest"
+      }
+    }
+  },
+  "processing": {
+    "deterministic_mode": true,
+    "allow_llm_adjustment": false,
+    "cache_root": ".probablyfine/cache",
+    "report_root": ".probablyfine/reports"
+  }
+}

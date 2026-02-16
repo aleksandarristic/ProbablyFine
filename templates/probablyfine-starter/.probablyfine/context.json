@@ -1,0 +1,68 @@
+{
+  "schema_version": "0.1.0",
+  "component": {
+    "name": "probablyfine",
+    "type": "service",
+    "runtime": "container",
+    "orchestrator": "kubernetes",
+    "cloud": "aws",
+    "platform": "eks",
+    "namespace": "prod",
+    "exposure": "internal"
+  },
+  "network": {
+    "internet_ingress": {
+      "public_entrypoint": true,
+      "unrestricted": false,
+      "fronted_by": [
+        "nginx"
+      ],
+      "authn": "required",
+      "authz": "required",
+      "rate_limited": true,
+      "waf": "unknown",
+      "mTLS": "unknown"
+    },
+    "service_reachability": {
+      "reachable_from_internet_directly": false,
+      "reachable_via_public_ingress": true,
+      "reachable_from_same_vpc": true,
+      "reachable_only_from_cluster": false
+    },
+    "allowed_endpoints": [
+      {
+        "method": "GET",
+        "path": "/healthz",
+        "purpose": "healthcheck"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/thing",
+        "purpose": "business"
+      }
+    ],
+    "default_deny": true
+  },
+  "auth_boundary": {
+    "internet_to_ingress": "strong",
+    "ingress_to_service": "unknown",
+    "service_requires_auth": true,
+    "auth_type": [
+      "oidc",
+      "jwt"
+    ],
+    "privilege_required": "user"
+  },
+  "data": {
+    "confidentiality_requirement": "high",
+    "integrity_requirement": "medium",
+    "availability_requirement": "medium"
+  },
+  "controls": {
+    "reverse_proxy_hardened": true,
+    "input_validation_at_edge": "unknown",
+    "egress_restricted": "unknown",
+    "pod_security": "unknown",
+    "network_policy_enforced": "unknown"
+  }
+}
