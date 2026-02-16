@@ -278,3 +278,10 @@ Each task is a small, readable card with:
 - Type: DET
 - Depends on: PF-090
 - Acceptance criteria: includes sample context/config files and expected report snapshots.
+
+### PF-092 Python packaging and app layout
+- Status: DONE
+- Priority: P1
+- Type: DET
+- Depends on: none
+- Acceptance criteria: repository includes `src/` package layout, `pyproject.toml`, requirements files, and CLI entry points with script-wrapper compatibility.

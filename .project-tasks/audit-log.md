@@ -22,3 +22,9 @@
 - Added utility usage docs to `scripts/probablyfine-triage/README.md` and root `README.md`.
 - Marked task `PF-060` as `DONE` in `.project-tasks/backlog.md`.
 - Updated `.project-tasks/current-sprint.md` to note `PF-060` as completed ahead of original scope.
+- Repackaged runtime code into `src/probablyfine/triage/` and added Python packaging metadata in `pyproject.toml`.
+- Added `requirements.txt` and `requirements-dev.txt`.
+- Added console entry points: `probablyfine-triage`, `probablyfine-triage-legacy`, and `probablyfine-context`.
+- Converted files in `scripts/probablyfine-triage/` into compatibility wrappers to preserve script-based execution.
+- Updated docs for package-first usage and install/run commands.
+- Marked task `PF-092` as `DONE` and aligned current sprint notes.

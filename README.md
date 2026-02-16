@@ -69,23 +69,70 @@ Determinism policy:
 - Prefer deterministic code for parsing, joins, scoring, caching, sorting, and report generation.
 - Use Codex/LLM only where deterministic logic is impractical, and keep it bounded and auditable.
 
+## Python App Layout
+
+The project now follows a package-first layout:
+
+```text
+src/
+  probablyfine/
+    triage/
+      ...
+scripts/
+  probablyfine-triage/
+    ...compatibility wrappers...
+pyproject.toml
+requirements.txt
+```
+
+Primary runtime implementation lives in:
+
+- `src/probablyfine/triage/`
+
+Legacy script paths under `scripts/probablyfine-triage/` remain available as compatibility wrappers.
+
+## Install And Run
+
+Install locally:
+
+```bash
+python3 -m pip install -e .
+```
+
+Run via console entry points:
+
+```bash
+probablyfine-triage --offline
+probablyfine-context
+```
+
+Or via modules:
+
+```bash
+python3 -m probablyfine.triage.triage_pipeline --offline
+python3 -m probablyfine.triage.context_creator
+```
+
+Compatibility wrappers still work:
+
+```bash
+python3 scripts/probablyfine-triage/triage_pipeline.py --offline
+python3 scripts/probablyfine-triage/context_creator.py
+```
+
 ## Current Code
 
-Implementation lives in:
-
-- `scripts/probablyfine-triage/`
-
 Key entry points:
-- `scripts/probablyfine-triage/triage_pipeline.py`
-- `scripts/probablyfine-triage/triage.py`
+- `src/probablyfine/triage/triage_pipeline.py`
+- `src/probablyfine/triage/triage.py`
 
 Context utility:
-- `scripts/probablyfine-triage/context_creator.py`
+- `src/probablyfine/triage/context_creator.py`
 
 Create a context file interactively:
 
 ```bash
-python3 scripts/probablyfine-triage/context_creator.py
+probablyfine-context
 ```
 
 Current scripts support the staged triage flow with local inputs and deterministic outputs.

@@ -2,6 +2,12 @@
 
 Deterministic implementation for vulnerability triage.
 
+Primary package code is in:
+
+- `src/probablyfine/triage/`
+
+Files in this folder are compatibility wrappers for script-based execution.
+
 ## Stages
 
 1. `normalize_findings.py`
@@ -13,6 +19,20 @@ Deterministic implementation for vulnerability triage.
 ## Utilities
 
 - `context_creator.py`: interactive generator for `.probablyfine/context.json`
+
+Preferred commands (after `pip install -e .`):
+
+```bash
+probablyfine-context
+probablyfine-triage
+```
+
+Module invocation:
+
+```bash
+python3 -m probablyfine.triage.context_creator
+python3 -m probablyfine.triage.triage_pipeline
+```
 
 Interactive mode:
 

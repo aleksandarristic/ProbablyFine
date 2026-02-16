@@ -29,6 +29,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 ## Completed Ahead Of Scope
 
 - PF-060 utility script to build `.probablyfine/context.json` from guided human input
+- PF-092 Python packaging and app layout (`src/`, `pyproject.toml`, requirements, CLI entry points)
 
 ## Exit Criteria
 

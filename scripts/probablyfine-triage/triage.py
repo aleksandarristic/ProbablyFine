@@ -1,44 +1,15 @@
 #!/usr/bin/env python3
-"""Backward-compatible wrapper for staged probablyfine-triage pipeline."""
+"""Compatibility wrapper for packaged probablyfine triage CLI."""
 
-from __future__ import annotations
-
-import argparse
-import subprocess
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SRC_DIR = REPO_ROOT / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dependabot", type=Path, default=Path("dependabot.json"))
-    parser.add_argument("--ecr", type=Path, default=Path("ecr_findings.json"))
-    parser.add_argument("--context", type=Path, default=Path("context.json"))
-    parser.add_argument("--threat-intel", type=Path, default=Path("threat_intel.json"))
-    parser.add_argument("--output", type=Path, default=Path("contextual-threat-risk-triage.md"))
-    parser.add_argument("--offline", action="store_true", help="Do not fetch EPSS/KEV")
-    args = parser.parse_args()
-
-    scripts_dir = Path(__file__).resolve().parent
-    cmd = [
-        sys.executable,
-        str(scripts_dir / "triage_pipeline.py"),
-        "--dependabot",
-        str(args.dependabot),
-        "--ecr",
-        str(args.ecr),
-        "--context",
-        str(args.context),
-        "--threat-intel",
-        str(args.threat_intel),
-        "--output-md",
-        str(args.output),
-    ]
-    if args.offline:
-        cmd.append("--offline")
-
-    subprocess.run(cmd, check=True)
-    return 0
+from probablyfine.triage.triage import main
 
 
 if __name__ == "__main__":
