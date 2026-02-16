@@ -10,6 +10,22 @@ Deterministic implementation for vulnerability triage.
 4. `score_and_rank.py`
 5. `triage_pipeline.py` (orchestrator)
 
+## Utilities
+
+- `context_creator.py`: interactive generator for `.probablyfine/context.json`
+
+Interactive mode:
+
+```bash
+python3 scripts/probablyfine-triage/context_creator.py
+```
+
+Non-interactive starter defaults:
+
+```bash
+python3 scripts/probablyfine-triage/context_creator.py --non-interactive
+```
+
 ## Quick run
 
 ```bash

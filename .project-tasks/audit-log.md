@@ -18,3 +18,7 @@
 - Reworked `.project-tasks/backlog.md` from table format to human-readable section/card markdown while preserving IDs, dependencies, priorities, and acceptance criteria.
 - Reworked `.project-tasks/open-questions.md` from table format to human-readable section/card markdown.
 - Updated `.project-tasks/README.md` to define the new non-table backlog style.
+- Implemented `scripts/probablyfine-triage/context_creator.py` as deterministic interactive utility for creating `.probablyfine/context.json`.
+- Added utility usage docs to `scripts/probablyfine-triage/README.md` and root `README.md`.
+- Marked task `PF-060` as `DONE` in `.project-tasks/backlog.md`.
+- Updated `.project-tasks/current-sprint.md` to note `PF-060` as completed ahead of original scope.

@@ -26,6 +26,10 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-061 Codex-assisted environment authoring
 - PF-071 batching/queueing
 
+## Completed Ahead Of Scope
+
+- PF-060 utility script to build `.probablyfine/context.json` from guided human input
+
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

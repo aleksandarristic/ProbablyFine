@@ -79,6 +79,15 @@ Key entry points:
 - `scripts/probablyfine-triage/triage_pipeline.py`
 - `scripts/probablyfine-triage/triage.py`
 
+Context utility:
+- `scripts/probablyfine-triage/context_creator.py`
+
+Create a context file interactively:
+
+```bash
+python3 scripts/probablyfine-triage/context_creator.py
+```
+
 Current scripts support the staged triage flow with local inputs and deterministic outputs.
 
 ## Project Management

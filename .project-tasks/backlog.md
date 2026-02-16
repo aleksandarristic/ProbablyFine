@@ -220,7 +220,7 @@ Each task is a small, readable card with:
 ## Environment Context Utility
 
 ### PF-060 Utility script to build context from human prompts
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-002
