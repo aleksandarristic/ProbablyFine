@@ -1,0 +1,36 @@
+{
+  "findings": [
+    {
+      "findingArn": "arn:aws:inspector2:us-east-1:111122223333:finding/example-1",
+      "severity": "CRITICAL",
+      "packageVulnerabilityDetails": {
+        "vulnerabilityId": "CVE-2021-23337",
+        "vulnerablePackages": [
+          {
+            "name": "lodash",
+            "fixedInVersion": "4.17.21"
+          }
+        ]
+      },
+      "cvss": [
+        {
+          "version": "4.0",
+          "scoringVector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N"
+        }
+      ]
+    },
+    {
+      "findingArn": "arn:aws:inspector2:us-east-1:111122223333:finding/example-2",
+      "severity": "HIGH",
+      "packageVulnerabilityDetails": {
+        "vulnerabilityId": "CVE-2023-45853",
+        "vulnerablePackages": [
+          {
+            "name": "zlib",
+            "fixedInVersion": "1.3"
+          }
+        ]
+      }
+    }
+  ]
+}

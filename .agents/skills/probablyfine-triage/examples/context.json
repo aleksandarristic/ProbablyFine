@@ -1,0 +1,26 @@
+{
+  "confidentiality_requirement": "high",
+  "integrity_requirement": "medium",
+  "availability_requirement": "medium",
+  "exposure": "public",
+  "auth_boundary": "none",
+  "requires_mtls": false,
+  "service_mesh_policy_enforced": false,
+  "privileges_required": "none",
+  "runtime_presence": "runtime",
+  "runtime_presence_by_package": {
+    "lodash": "runtime",
+    "minimist": "build-only",
+    "zlib": "runtime"
+  },
+  "ingress": {
+    "public_lb": true,
+    "public_ip": false,
+    "sg_allows_0_0_0_0": true
+  },
+  "network_reachability": {
+    "reachable_from_internet": true,
+    "reachable_from_same_vpc": true,
+    "reachable_only_from_same_host": false
+  }
+}

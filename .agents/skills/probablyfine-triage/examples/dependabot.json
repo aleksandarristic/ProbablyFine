@@ -1,0 +1,32 @@
+{
+  "alerts": [
+    {
+      "id": 101,
+      "dependency": { "package": { "name": "lodash" } },
+      "security_vulnerability": {
+        "severity": "high",
+        "first_patched_version": { "identifier": "4.17.21" }
+      },
+      "security_advisory": {
+        "severity": "high",
+        "cvss": { "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N" },
+        "identifiers": [
+          { "type": "CVE", "value": "CVE-2021-23337" }
+        ]
+      }
+    },
+    {
+      "id": 102,
+      "dependency": { "package": { "name": "minimist" } },
+      "security_vulnerability": {
+        "severity": "medium"
+      },
+      "security_advisory": {
+        "severity": "medium",
+        "identifiers": [
+          { "type": "CVE", "value": "CVE-2021-44906" }
+        ]
+      }
+    }
+  ]
+}

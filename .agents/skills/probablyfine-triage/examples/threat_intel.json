@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-02-16T00:00:00Z",
+  "sources": {
+    "epss": "https://api.first.org/data/v1/epss",
+    "kev": "https://github.com/cisagov/kev-data"
+  },
+  "items": [
+    {
+      "cve": "CVE-2021-23337",
+      "epss_probability": 0.92,
+      "epss_percentile": 0.99,
+      "cisa_kev_listed": false,
+      "kev_date_added": null,
+      "kev_due_date": null
+    },
+    {
+      "cve": "CVE-2021-44906",
+      "epss_probability": 0.28,
+      "epss_percentile": 0.71,
+      "cisa_kev_listed": false,
+      "kev_date_added": null,
+      "kev_due_date": null
+    },
+    {
+      "cve": "CVE-2023-45853",
+      "epss_probability": 0.81,
+      "epss_percentile": 0.96,
+      "cisa_kev_listed": true,
+      "kev_date_added": "2024-02-01",
+      "kev_due_date": "2024-02-22"
+    }
+  ]
+}
