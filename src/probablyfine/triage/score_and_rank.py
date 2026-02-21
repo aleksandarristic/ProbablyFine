@@ -21,6 +21,9 @@ from .pipeline_common import (
     fmt_sub,
     impact_sub,
     markdown_escape,
+    norm_cve,
+    norm_package,
+    norm_severity,
     read_json,
     recommended_action,
     runtime_presence,
@@ -78,15 +81,20 @@ def main() -> int:
         if not isinstance(item, dict):
             continue
 
-        cve = item.get("cve") if isinstance(item.get("cve"), str) else "unknown"
-        package = item.get("package") if isinstance(item.get("package"), str) else "unknown"
-        severity = item.get("severity") if isinstance(item.get("severity"), str) else "unknown"
-        if severity not in SEVERITY_RANK:
-            severity = "unknown"
+        cve = norm_cve(item.get("cve")) or "unknown"
+        package = norm_package(item.get("package"))
+        severity = norm_severity(item.get("severity"))
 
         source_bucket = item.get("source_bucket") if isinstance(item.get("source_bucket"), str) else None
         if source_bucket not in source_counts:
-            source_bucket = source_bucket_for_sources(set(item.get("sources", [])))
+            sources = item.get("sources")
+            source_bucket = source_bucket_for_sources(
+                {
+                    source.strip()
+                    for source in sources
+                    if isinstance(source, str) and source.strip() in {"Dependabot", "ECR"}
+                }
+            )
         source_counts[source_bucket] += 1
 
         intel = intel_index.get(cve, {})
@@ -102,6 +110,8 @@ def main() -> int:
         run_sub = RUNTIME_SUB[run]
 
         fix_version = item.get("fix_version") if isinstance(item.get("fix_version"), str) else None
+        if isinstance(fix_version, str):
+            fix_version = fix_version.strip() or None
         fix_sub = 1.00 if fix_version else 0.60
 
         risk_raw = 100 * (
@@ -116,6 +126,8 @@ def main() -> int:
         severity_counts[severity] += 1
 
         base_vector = item.get("cvss4_base_vector") if isinstance(item.get("cvss4_base_vector"), str) else None
+        if isinstance(base_vector, str):
+            base_vector = base_vector.strip() or None
 
         evidence_ids = item.get("evidence_ids") if isinstance(item.get("evidence_ids"), list) else []
         evidence = ", ".join(sorted({str(x) for x in evidence_ids if x is not None})) or "unknown"

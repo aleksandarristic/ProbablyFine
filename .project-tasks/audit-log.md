@@ -39,6 +39,10 @@
 - Updated environment override mapping to read canonical nested context schema fields (`data`, `network`, `auth_boundary`, `component`) with deterministic legacy-key fallback.
 - Updated `.project-tasks/backlog.md` status for `PF-042` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to record `PF-042` as completed in scope.
+- Completed `PF-043` deterministic scoring and ranking stage.
+- Hardened scoring input normalization for CVE/package/severity/source handling before sorting/ranking to preserve stable output with equivalent inputs.
+- Updated `.project-tasks/backlog.md` status for `PF-043` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-043` as completed in scope.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

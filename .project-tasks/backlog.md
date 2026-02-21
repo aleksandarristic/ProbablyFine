@@ -174,7 +174,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: outputs deterministic `env_overrides.json` from context file.
 
 ### PF-043 Deterministic scoring and ranking stage
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-040, PF-041, PF-042
