@@ -285,3 +285,10 @@ Each task is a small, readable card with:
 - Type: DET
 - Depends on: none
 - Acceptance criteria: repository includes `src/` package layout, `pyproject.toml`, requirements files, and CLI entry points with script-wrapper compatibility.
+
+### PF-093 Runtime architecture docs refresh
+- Status: DONE
+- Priority: P2
+- Type: DET
+- Depends on: PF-043, PF-050, PF-090
+- Acceptance criteria: README includes an explicit end-to-end runtime flow and code map for core modules/utilities.

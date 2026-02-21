@@ -74,14 +74,103 @@ Template includes:
 - starter processing/source config (`config.json`)
 - sample report snapshots under `.probablyfine/reports/2026-02-16/`
 
-## Architecture (Planned)
+## Architecture (Current)
 
-Pipeline stages:
+Runtime pipeline stages:
 1. Collect findings from Dependabot and ECR.
 2. Normalize and deduplicate deterministically.
 3. Fetch deterministic threat intel (EPSS/KEV) and cache.
 4. Apply environment context.
 5. Score/rank and generate reports.
+6. Optionally emit bounded adjustment annotations (feature-flagged).
+
+## How It Works
+
+End-to-end flow for each target repo:
+
+1. `probablyfine-scan` validates `.probablyfine/` contract and schemas.
+2. Scanner loads typed config and validates auth/input availability.
+3. Collectors write raw source artifacts under `.probablyfine/cache/<date>/`.
+4. Scanner invokes `probablyfine.triage.triage_pipeline` with deterministic stage paths.
+5. Pipeline emits:
+   - `normalized_findings.json`
+   - `threat_intel.json`
+   - `env_overrides.json`
+   - report markdown/json
+6. Scanner writes:
+   - run manifest (`run-manifest-<run-id>.json`)
+   - cache audit (`cache-audit-<run-id>.json`)
+   - per-date run index (`index.json`)
+
+Deterministic guarantees:
+- no randomization in scoring/ranking/sorting
+- explicit source allowlist for threat intel
+- deterministic fallback behavior on fetch failures
+- determinism harness available (`probablyfine-verify-determinism`)
+
+```mermaid
+flowchart TD
+    A[Start: probablyfine-scan] --> B[Validate .probablyfine contract + schemas]
+    B --> C[Load typed config + schema version gate]
+    C --> D[Auth/Input preflight checks]
+    D --> E[Collect Dependabot findings]
+    D --> F[Collect ECR findings]
+    E --> G[Write raw cache artifacts]
+    F --> G
+    G --> H[Run triage_pipeline]
+    H --> I[Normalize + dedupe]
+    I --> J[Fetch EPSS/KEV threat intel]
+    J --> K[Map context to env overrides]
+    K --> L[Deterministic score + rank]
+    L --> M[Write report.md + report.json]
+    M --> N{allow_llm_adjustment?}
+    N -- no --> O[Skip optional adjustment]
+    N -- yes --> P{PROBABLYFINE_ENABLE_LLM_ADJUSTMENT=1?}
+    P -- no --> Q[Write annotation-only adjustment artifact]
+    P -- yes --> R[Write applied adjustment artifact]
+    O --> S[Write run-manifest + cache-audit]
+    Q --> S
+    R --> S
+    S --> T[Update per-date reports index.json]
+    T --> U[End]
+```
+
+```mermaid
+flowchart LR
+    A[dependabot.json / Dependabot API] --> N[normalize_findings.py]
+    B[ecr_findings.json / ECR API] --> N
+    N --> C[normalized_findings.json]
+    C --> T[fetch_threat_intel.py]
+    T --> D[threat_intel.json]
+    E[context.json] --> O[select_env_overrides.py]
+    O --> F[env_overrides.json]
+    C --> S[score_and_rank.py]
+    D --> S
+    F --> S
+    S --> G[contextual-threat-risk-triage.md]
+    S --> H[contextual-threat-risk-triage.json]
+    H --> L[optional_adjustment.py]
+    L --> I[report-<timestamp>-llm-adjustment.json]
+```
+
+## Code Map
+
+Core runtime modules:
+- `src/probablyfine/scanner.py`: multi-repo orchestration, manifests, run index
+- `src/probablyfine/collectors.py`: Dependabot/ECR data collection + auth preflight
+- `src/probablyfine/config_loader.py`: typed config loader
+- `src/probablyfine/triage/triage_pipeline.py`: stage orchestrator
+- `src/probablyfine/triage/normalize_findings.py`: normalization/dedupe
+- `src/probablyfine/triage/fetch_threat_intel.py`: EPSS/KEV enrichment
+- `src/probablyfine/triage/select_env_overrides.py`: context-to-environment mapping
+- `src/probablyfine/triage/score_and_rank.py`: deterministic scoring/reporting
+- `src/probablyfine/triage/optional_adjustment.py`: optional bounded annotations
+
+Operational utilities:
+- `src/probablyfine/retention.py`: cache/report retention cleanup
+- `src/probablyfine/triage/context_creator.py`: interactive and codex-guided context authoring
+- `src/probablyfine/triage/context_drift_checker.py`: stale/incomplete context warnings
+- `src/probablyfine/triage/verify_determinism.py`: repeated-run byte stability checks
 
 Normalization stage behavior:
 - Correlation key is `(CVE, lowercase(package))`.

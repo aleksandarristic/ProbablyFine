@@ -31,6 +31,10 @@
 
 ## 2026-02-21
 
+- Completed `PF-093` runtime architecture docs refresh.
+- Updated `README.md` with current architecture, end-to-end runtime flow, deterministic guarantees, and a concrete code map of core modules/utilities.
+- Updated `.project-tasks/backlog.md` status for `PF-093` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-093` in completed ahead-of-scope work.
 - Completed `PF-004` config versioning strategy.
 - Added deterministic config schema-version gating in loader (`src/probablyfine/schema_versioning.py`) with explicit unsupported-version failure behavior.
 - Documented migration/versioning policy in `contracts/schema-versioning.md` and linked it from contract/README docs.

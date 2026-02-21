@@ -65,6 +65,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-044 optional LLM score adjustment
 - PF-062 context drift checker
 - PF-061 Codex-assisted environment authoring
+- PF-093 runtime architecture docs refresh
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.
