@@ -11,7 +11,9 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
+from probablyfine.collectors import CollectorError, collect_dependabot_findings
 from probablyfine.contracts import repo_root_from_module, validate_probablyfine_contract
 from probablyfine.config_loader import (
     ProbablyFineConfig,
@@ -38,6 +40,8 @@ def run_pipeline_for_repo(
     project_root: Path,
     mode: str,
     ecr_ref: ResolvedECRImageRef,
+    collector_inputs: dict[str, str],
+    collector_meta: dict[str, Any],
 ) -> tuple[bool, str, Path | None]:
     pf_dir = repo / ".probablyfine"
     started_at = utc_now()
@@ -52,8 +56,8 @@ def run_pipeline_for_repo(
     manifest_path = report_dir / f"run-manifest-{run_id}.json"
 
     inputs = {
-        "dependabot": str(repo / "dependabot.json"),
-        "ecr": str(repo / "ecr_findings.json"),
+        "dependabot": collector_inputs["dependabot"],
+        "ecr": collector_inputs["ecr"],
         "context": str(pf_dir / "context.json"),
         "config": str(pf_dir / "config.json"),
     }
@@ -125,6 +129,7 @@ def run_pipeline_for_repo(
                 "image_value": ecr_ref.image_value,
                 "image_id": ecr_ref.image_id,
             },
+            "collector_meta": collector_meta,
             "command": cmd,
         },
     )
@@ -159,12 +164,40 @@ def process_repo(
     except Exception as exc:
         return repo_path, False, f"{config_path}: ecr image reference resolution failed: {exc}"
 
+    started_at = utc_now()
+    date_str = started_at.strftime("%Y-%m-%d")
+    ts = started_at.strftime("%Y-%m-%dT%H%M%SZ")
+    cache_dir = repo_path / ".probablyfine" / "cache" / date_str
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        dep_path, dep_meta = collect_dependabot_findings(
+            config=config,
+            repo_path=repo_path,
+            cache_dir=cache_dir,
+            timestamp_token=ts,
+        )
+    except CollectorError as exc:
+        return repo_path, False, f"dependabot collector failed: {exc}"
+
+    ecr_fallback = repo_path / "ecr_findings.json"
+    collector_inputs = {
+        "dependabot": str(dep_path),
+        "ecr": str(ecr_fallback),
+    }
+    collector_meta: dict[str, Any] = {
+        "dependabot": dep_meta,
+        "ecr": {"source": f"file:{ecr_fallback}"},
+    }
+
     ok, detail, manifest = run_pipeline_for_repo(
         repo_path,
         offline=offline,
         project_root=project_root,
         mode=mode,
         ecr_ref=ecr_ref,
+        collector_inputs=collector_inputs,
+        collector_meta=collector_meta,
     )
     if manifest:
         detail = f"{detail}; manifest={manifest}"

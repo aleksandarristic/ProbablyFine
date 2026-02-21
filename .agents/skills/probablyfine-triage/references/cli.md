@@ -76,3 +76,5 @@ python3 scripts/probablyfine-triage/triage_pipeline.py --offline
 
 
 Scanner writes per-repo run manifests to `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`.
+
+PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline

@@ -66,3 +66,7 @@
 - Scanner now validates/resolves ECR image references before run and records normalized resolved refs in per-repo run manifests.
 - Updated `README.md` with config loader and ECR resolver references.
 - Marked task `PF-022` as `DONE` and aligned sprint tracking.
+- Implemented Dependabot collector with GitHub API fetch + dated raw cache artifact output (`PF-030`).
+- Added deterministic local override for Dependabot collector via `PROBABLYFINE_DEPENDABOT_FILE`.
+- Scanner now feeds pipeline from cached Dependabot raw artifact path and records collector metadata in run manifest.
+- Marked task `PF-030` as `DONE` and aligned sprint tracking.

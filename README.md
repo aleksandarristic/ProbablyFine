@@ -154,6 +154,10 @@ Per-repo run manifest files are written to:
 Optional run summary output:
 - `--summary-json <path>` writes deterministic per-repo status summary JSON.
 
+Dependabot collector details:
+- Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.
+- For deterministic local testing, set `PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json` to bypass live API calls.
+
 Large repo set control:
 - `--batch-size <n>` processes repos in bounded batches/queues (`0` disables batching).
 

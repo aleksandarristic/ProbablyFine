@@ -123,7 +123,7 @@ Each task is a small, readable card with:
 ## Data Collection
 
 ### PF-030 Dependabot collector (GitHub API)
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-020
