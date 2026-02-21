@@ -87,3 +87,17 @@ Scanner writes per-repo run manifests to `.probablyfine/reports/<YYYY-MM-DD>/run
 PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
 PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
 PROBABLYFINE_HTTP_MAX_ATTEMPTS=3 PROBABLYFINE_HTTP_TIMEOUT_SECONDS=20 PROBABLYFINE_AWS_MAX_ATTEMPTS=3 PROBABLYFINE_AWS_TIMEOUT_SECONDS=20 python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
+
+## Auth precedence
+
+Scanner validates collector auth/input configuration before collection starts.
+
+Dependabot:
+1. `PROBABLYFINE_DEPENDABOT_FILE` (must exist)
+2. `GITHUB_TOKEN`
+3. repo-local `dependabot.json`
+
+ECR:
+1. `PROBABLYFINE_ECR_FILE` (must exist)
+2. repo-local `ecr_findings.json`
+3. AWS ECR API (`boto3` + ambient AWS credentials)

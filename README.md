@@ -185,6 +185,22 @@ Collector retry/timeout controls (deterministic, bounded):
 - HTTP/GitHub: `PROBABLYFINE_HTTP_TIMEOUT_SECONDS`, `PROBABLYFINE_HTTP_MAX_ATTEMPTS`, `PROBABLYFINE_HTTP_RETRY_SLEEP_SECONDS`, `PROBABLYFINE_GITHUB_PAGE_SLEEP_SECONDS`
 - AWS/ECR: `PROBABLYFINE_AWS_TIMEOUT_SECONDS`, `PROBABLYFINE_AWS_MAX_ATTEMPTS`, `PROBABLYFINE_AWS_RETRY_SLEEP_SECONDS`
 
+## Authentication Strategy
+
+Collector auth preflight is validated before API collection starts.
+
+Dependabot auth precedence when source is enabled:
+1. `PROBABLYFINE_DEPENDABOT_FILE` (must exist)
+2. `GITHUB_TOKEN`
+3. repo-local `dependabot.json`
+4. otherwise scanner fails with explicit auth error
+
+ECR auth/input precedence when source is enabled:
+1. `PROBABLYFINE_ECR_FILE` (must exist)
+2. repo-local `ecr_findings.json`
+3. AWS ECR API via `boto3` and ambient AWS credentials
+4. otherwise scanner fails with explicit auth error
+
 Large repo set control:
 - `--batch-size <n>` processes repos in bounded batches/queues (`0` disables batching).
 

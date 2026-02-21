@@ -56,6 +56,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-081 integration tests for full repo processing
 - PF-082 failure-mode tests
 - PF-052 run index generation
+- PF-033 data source authentication strategy
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

@@ -144,7 +144,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: collectors implement bounded retries and configurable timeouts.
 
 ### PF-033 Data source authentication strategy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-030, PF-031

@@ -63,6 +63,42 @@ def _retry_call(fn, attempts: int, sleep_seconds: int, label: str):
     raise CollectorError(f"{label} failed after {attempts} attempts: {last_exc}")
 
 
+def validate_collector_auth(config: ProbablyFineConfig, repo_path: Path) -> list[str]:
+    errors: list[str] = []
+
+    dep = config.sources.dependabot
+    if dep.enabled:
+        override = os.environ.get("PROBABLYFINE_DEPENDABOT_FILE", "").strip()
+        if override and not Path(override).exists():
+            errors.append(f"PROBABLYFINE_DEPENDABOT_FILE does not exist: {override}")
+        elif not override:
+            token = os.environ.get("GITHUB_TOKEN", "").strip()
+            fallback = repo_path / "dependabot.json"
+            if not token and not fallback.exists():
+                errors.append(
+                    "Dependabot auth unavailable: set GITHUB_TOKEN or provide "
+                    "PROBABLYFINE_DEPENDABOT_FILE or repo-local dependabot.json"
+                )
+
+    ecr = config.sources.ecr
+    if ecr.enabled:
+        override = os.environ.get("PROBABLYFINE_ECR_FILE", "").strip()
+        if override and not Path(override).exists():
+            errors.append(f"PROBABLYFINE_ECR_FILE does not exist: {override}")
+        elif not override:
+            fallback = repo_path / "ecr_findings.json"
+            if not fallback.exists():
+                try:
+                    import boto3  # type: ignore # noqa: F401
+                except Exception:
+                    errors.append(
+                        "ECR auth unavailable: install boto3 with AWS credentials or provide "
+                        "PROBABLYFINE_ECR_FILE or repo-local ecr_findings.json"
+                    )
+
+    return errors
+
+
 def collect_dependabot_findings(
     config: ProbablyFineConfig,
     repo_path: Path,

@@ -66,6 +66,11 @@
 - Updated `README.md` output documentation for report index files.
 - Updated `.project-tasks/backlog.md` status for `PF-052` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-052` in completed ahead-of-scope work.
+- Completed `PF-033` data source authentication strategy.
+- Added deterministic collector auth preflight validation (`validate_collector_auth`) and integrated it into scanner flow before source collection.
+- Documented credential/input precedence and failure behavior in `README.md` and scanner CLI reference.
+- Updated `.project-tasks/backlog.md` status for `PF-033` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-033` in completed ahead-of-scope work.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

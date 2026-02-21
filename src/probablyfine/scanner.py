@@ -13,7 +13,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from probablyfine.collectors import CollectorError, collect_dependabot_findings, collect_ecr_findings
+from probablyfine.collectors import (
+    CollectorError,
+    collect_dependabot_findings,
+    collect_ecr_findings,
+    validate_collector_auth,
+)
 from probablyfine.contracts import repo_root_from_module, validate_probablyfine_contract
 from probablyfine.config_loader import (
     ProbablyFineConfig,
@@ -227,6 +232,10 @@ def process_repo(
 
     if not config.processing.deterministic_mode:
         return repo_path, False, f"{config_path}: deterministic_mode must be true"
+
+    auth_errors = validate_collector_auth(config=config, repo_path=repo_path)
+    if auth_errors:
+        return repo_path, False, "; ".join(auth_errors)
 
     try:
         ecr_ref = resolve_ecr_image_reference(config)
