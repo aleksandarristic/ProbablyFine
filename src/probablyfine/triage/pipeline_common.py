@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import re
 import urllib.parse
 import urllib.request
@@ -60,6 +61,9 @@ class CorrelatedFinding:
 
 
 def utc_now_iso() -> str:
+    fixed = os.environ.get("PROBABLYFINE_FIXED_UTC_NOW", "").strip()
+    if fixed:
+        return fixed
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 

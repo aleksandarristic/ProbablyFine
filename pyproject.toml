@@ -16,6 +16,7 @@ dependencies = []
 [project.scripts]
 probablyfine-triage = "probablyfine.triage.triage_pipeline:main"
 probablyfine-triage-legacy = "probablyfine.triage.triage:main"
+probablyfine-verify-determinism = "probablyfine.triage.verify_determinism:main"
 probablyfine-context = "probablyfine.triage.context_creator:main"
 probablyfine-scan = "probablyfine.scanner:main"
 probablyfine-retention = "probablyfine.retention:main"

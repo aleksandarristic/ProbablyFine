@@ -132,6 +132,7 @@ probablyfine-scan /path/to/repo-a /path/to/repo-b --offline --mode parallel --wo
 probablyfine-scan --repo-list repos.txt --offline --summary-json scan-summary.json
 probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25
 probablyfine-retention --repo /path/to/repo --keep-days 30 --keep-latest 7
+probablyfine-verify-determinism --dependabot dependabot.json --ecr ecr_findings.json --context context.json
 ```
 
 Or via modules:
@@ -217,6 +218,10 @@ Retention cleanup:
 - dry-run: `probablyfine-retention --repo /path/to/repo`
 - apply: `probablyfine-retention --repo /path/to/repo --apply`
 - optional report: `probablyfine-retention --repo /path/to/repo --report-json /tmp/retention.json`
+
+Determinism verification harness:
+- `probablyfine-verify-determinism --dependabot dependabot.json --ecr ecr_findings.json --context context.json`
+- Harness runs pipeline twice with fixed timestamp injection (`PROBABLYFINE_FIXED_UTC_NOW`) and byte-compares emitted artifacts.
 
 Dependabot collector details:
 - Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.

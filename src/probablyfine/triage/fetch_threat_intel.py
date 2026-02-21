@@ -4,16 +4,15 @@
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 import sys
 from pathlib import Path
 
-from .pipeline_common import KEV_REPO_URL, EPSS_URL, build_threat_cache, read_json, write_json
+from .pipeline_common import KEV_REPO_URL, EPSS_URL, build_threat_cache, read_json, utc_now_iso, write_json
 
 
 def empty_cache(cves: list[str]) -> dict:
     return {
-        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "generated_at": utc_now_iso(),
         "sources": {"epss": EPSS_URL, "kev": KEV_REPO_URL},
         "fetch_status": "fallback-empty",
         "items": [

@@ -49,6 +49,13 @@
 - Resolved open question `Q-003` in `.project-tasks/open-questions.md`.
 - Updated `.project-tasks/backlog.md` status for `PF-006` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-006` in completed ahead-of-scope work.
+- Completed `PF-045` determinism verification harness.
+- Added pipeline determinism harness (`src/probablyfine/triage/verify_determinism.py`) and compatibility wrapper to run repeated offline pipeline executions and byte-compare outputs.
+- Added fixed timestamp injection support via `PROBABLYFINE_FIXED_UTC_NOW` for byte-stable artifact generation during deterministic verification.
+- Added harness test coverage (`tests/test_verify_determinism.py`) and CLI entry point (`probablyfine-verify-determinism`).
+- Updated docs with determinism harness usage.
+- Updated `.project-tasks/backlog.md` status for `PF-045` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-045` in completed ahead-of-scope work.
 - Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
 - Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
 - Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.

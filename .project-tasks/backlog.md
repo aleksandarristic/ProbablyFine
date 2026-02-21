@@ -188,7 +188,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: feature-flagged stage emits rationale/annotations without mutating deterministic base score unless explicitly enabled.
 
 ### PF-045 Determinism verification harness
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-043
