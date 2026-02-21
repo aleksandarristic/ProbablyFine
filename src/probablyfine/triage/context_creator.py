@@ -63,6 +63,17 @@ DEFAULT_CONTEXT: Dict[str, Any] = {
         "pod_security": "unknown",
         "network_policy_enforced": "unknown",
     },
+    "runtime": {
+        "presence_default": "unknown",
+        "presence_by_package": [
+            {"package": "requests", "presence": "runtime"},
+        ],
+    },
+    "metadata": {
+        "owner_team": "platform-security",
+        "service_tier": "tier-2",
+        "last_reviewed": "2026-02-21",
+    },
 }
 
 
@@ -81,6 +92,10 @@ CODEX_QUESTIONNAIRE: List[Dict[str, Any]] = [
     {"key": "data.confidentiality_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
     {"key": "data.integrity_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
     {"key": "data.availability_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
+    {"key": "runtime.presence_default", "type": "enum", "options": ["runtime", "build-only", "unknown"]},
+    {"key": "metadata.owner_team", "type": "string", "prompt": "Owner team"},
+    {"key": "metadata.service_tier", "type": "string", "prompt": "Service tier"},
+    {"key": "metadata.last_reviewed", "type": "string", "prompt": "Last reviewed date"},
 ]
 
 
@@ -419,6 +434,55 @@ def build_context(non_interactive: bool) -> Dict[str, Any]:
         ),
     }
 
+    runtime_defaults = d["runtime"]
+    runtime_entry_defaults = runtime_defaults["presence_by_package"]
+    runtime_entry_count = ask_int(
+        "Number of per-package runtime overrides",
+        len(runtime_entry_defaults),
+        0,
+        200,
+        non_interactive,
+    )
+    runtime_entries: List[Dict[str, str]] = []
+    for i in range(runtime_entry_count):
+        base = (
+            runtime_entry_defaults[i]
+            if i < len(runtime_entry_defaults)
+            else {"package": "unknown", "presence": "unknown"}
+        )
+        runtime_entries.append(
+            {
+                "package": ask_text(
+                    f"Runtime override {i + 1} package",
+                    str(base["package"]),
+                    non_interactive,
+                ).strip().lower(),
+                "presence": ask_choice(
+                    f"Runtime override {i + 1} presence",
+                    ["runtime", "build-only", "unknown"],
+                    str(base["presence"]),
+                    non_interactive,
+                ),
+            }
+        )
+
+    runtime = {
+        "presence_default": ask_choice(
+            "Default runtime presence",
+            ["runtime", "build-only", "unknown"],
+            runtime_defaults["presence_default"],
+            non_interactive,
+        ),
+        "presence_by_package": runtime_entries,
+    }
+
+    metadata_defaults = d["metadata"]
+    metadata = {
+        "owner_team": ask_text("Owner team", metadata_defaults["owner_team"], non_interactive),
+        "service_tier": ask_text("Service tier", metadata_defaults["service_tier"], non_interactive),
+        "last_reviewed": ask_text("Last reviewed date", metadata_defaults["last_reviewed"], non_interactive),
+    }
+
     return {
         "schema_version": d["schema_version"],
         "component": component,
@@ -426,6 +490,8 @@ def build_context(non_interactive: bool) -> Dict[str, Any]:
         "auth_boundary": auth_boundary,
         "data": data,
         "controls": controls,
+        "runtime": runtime,
+        "metadata": metadata,
     }
 
 

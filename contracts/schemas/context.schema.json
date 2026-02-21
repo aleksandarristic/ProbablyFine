@@ -117,6 +117,36 @@
         "pod_security": {"enum": [true, false, "unknown"]},
         "network_policy_enforced": {"enum": [true, false, "unknown"]}
       }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["presence_default", "presence_by_package"],
+      "properties": {
+        "presence_default": {"type": "string", "enum": ["runtime", "build-only", "unknown"]},
+        "presence_by_package": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["package", "presence"],
+            "properties": {
+              "package": {"type": "string", "minLength": 1},
+              "presence": {"type": "string", "enum": ["runtime", "build-only", "unknown"]}
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_team", "service_tier", "last_reviewed"],
+      "properties": {
+        "owner_team": {"type": "string", "minLength": 1},
+        "service_tier": {"type": "string", "minLength": 1},
+        "last_reviewed": {"type": "string", "minLength": 1}
+      }
     }
   }
 }

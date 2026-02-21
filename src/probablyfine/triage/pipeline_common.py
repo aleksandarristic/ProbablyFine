@@ -565,7 +565,8 @@ def env_metrics(context: Any) -> Dict[str, str]:
         mac = "MAC:X"
 
     runtime_default = "unknown"
-    rp = context.get("runtime_presence")
+    runtime_obj = context.get("runtime") if isinstance(context.get("runtime"), dict) else {}
+    rp = runtime_obj.get("presence_default") if isinstance(runtime_obj.get("presence_default"), str) else context.get("runtime_presence")
     if isinstance(rp, str) and rp.strip().lower() in RUNTIME_RANK:
         runtime_default = rp.strip().lower()
 
@@ -584,12 +585,26 @@ def env_metrics(context: Any) -> Dict[str, str]:
 def env_overrides_payload(context: Any) -> Dict[str, Any]:
     env = env_metrics(context)
     runtime_by_package = {}
-    if isinstance(context, dict) and isinstance(context.get("runtime_presence_by_package"), dict):
-        for pkg, val in context["runtime_presence_by_package"].items():
-            if isinstance(pkg, str) and isinstance(val, str):
-                norm_val = val.strip().lower()
-                if norm_val in RUNTIME_RANK:
-                    runtime_by_package[pkg.strip().lower()] = norm_val
+    if isinstance(context, dict):
+        runtime_obj = context.get("runtime") if isinstance(context.get("runtime"), dict) else {}
+        by_pkg_entries = runtime_obj.get("presence_by_package")
+        if isinstance(by_pkg_entries, list):
+            for entry in by_pkg_entries:
+                if not isinstance(entry, dict):
+                    continue
+                pkg = entry.get("package")
+                val = entry.get("presence")
+                if isinstance(pkg, str) and isinstance(val, str):
+                    norm_val = val.strip().lower()
+                    if norm_val in RUNTIME_RANK and pkg.strip():
+                        runtime_by_package[pkg.strip().lower()] = norm_val
+
+        if not runtime_by_package and isinstance(context.get("runtime_presence_by_package"), dict):
+            for pkg, val in context["runtime_presence_by_package"].items():
+                if isinstance(pkg, str) and isinstance(val, str):
+                    norm_val = val.strip().lower()
+                    if norm_val in RUNTIME_RANK:
+                        runtime_by_package[pkg.strip().lower()] = norm_val
 
     rationale = {
         "CR": "Mapped from confidentiality_requirement in context.json",

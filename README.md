@@ -12,6 +12,12 @@ Given a repository, process security findings by combining:
 
 Then produce dated, auditable reports and cached source artifacts.
 
+Context model now includes:
+- deployment and exposure attributes
+- auth/data/control requirements
+- runtime presence defaults and per-package runtime overrides
+- lightweight ownership metadata (`owner_team`, `service_tier`, `last_reviewed`)
+
 ## Target Repo Contract
 
 Each scanned repository is expected to include:

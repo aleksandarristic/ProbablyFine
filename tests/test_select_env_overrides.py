@@ -34,6 +34,18 @@ class SelectEnvOverridesTests(unittest.TestCase):
                 "integrity_requirement": "medium",
                 "availability_requirement": "low",
             },
+            "runtime": {
+                "presence_default": "build-only",
+                "presence_by_package": [
+                    {"package": "requests", "presence": "runtime"},
+                    {"package": "zlib", "presence": "build-only"},
+                ],
+            },
+            "metadata": {
+                "owner_team": "security",
+                "service_tier": "tier-1",
+                "last_reviewed": "2026-02-21",
+            },
             "controls": {},
         }
 
@@ -65,6 +77,8 @@ class SelectEnvOverridesTests(unittest.TestCase):
             self.assertEqual(payload["overrides"]["MAV"], "MAV:N")
             self.assertEqual(payload["overrides"]["MPR"], "MPR:L")
             self.assertEqual(payload["overrides"]["MAC"], "MAC:H")
+            self.assertEqual(payload["runtime_presence_default"], "build-only")
+            self.assertEqual(payload["runtime_presence_by_package"]["requests"], "runtime")
 
 
 if __name__ == "__main__":

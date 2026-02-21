@@ -31,6 +31,17 @@
 
 ## 2026-02-21
 
+- Completed `PF-094` context model depth expansion.
+- Extended context schema with runtime mapping and metadata sections:
+  - `runtime.presence_default`
+  - `runtime.presence_by_package[]`
+  - `metadata.owner_team`, `metadata.service_tier`, `metadata.last_reviewed`
+- Updated starter context template and context creator to capture new fields in interactive and codex-guided flows.
+- Updated environment override mapping to consume new runtime section while preserving legacy fallback behavior.
+- Added/updated tests for runtime mapping behavior in context override stage.
+- Updated user/stage docs for the expanded context model.
+- Updated `.project-tasks/backlog.md` status for `PF-094` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-094` in completed ahead-of-scope work.
 - Completed `PF-093` runtime architecture docs refresh.
 - Updated `README.md` with current architecture, end-to-end runtime flow, deterministic guarantees, and a concrete code map of core modules/utilities.
 - Updated `.project-tasks/backlog.md` status for `PF-093` to `DONE`.

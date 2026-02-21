@@ -292,3 +292,10 @@ Each task is a small, readable card with:
 - Type: DET
 - Depends on: PF-043, PF-050, PF-090
 - Acceptance criteria: README includes an explicit end-to-end runtime flow and code map for core modules/utilities.
+
+### PF-094 Context model depth expansion
+- Status: DONE
+- Priority: P1
+- Type: DET
+- Depends on: PF-002, PF-042, PF-060
+- Acceptance criteria: context schema and creator support runtime-per-package mapping and ownership metadata, and env mapping consumes the runtime section.
