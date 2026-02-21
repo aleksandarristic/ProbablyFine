@@ -56,6 +56,12 @@
 - Updated docs with determinism harness usage.
 - Updated `.project-tasks/backlog.md` status for `PF-045` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-045` in completed ahead-of-scope work.
+- Completed `PF-044` optional Codex-assisted adjustment stage.
+- Added feature-flagged optional adjustment stage (`src/probablyfine/triage/optional_adjustment.py`) that emits rationale/annotation artifacts and preserves base deterministic score unless explicitly enabled.
+- Integrated optional stage into pipeline/scanner with config gate (`processing.allow_llm_adjustment`) plus explicit runtime apply flag (`PROBABLYFINE_ENABLE_LLM_ADJUSTMENT=1`).
+- Added stage tests (`tests/test_optional_adjustment.py`) and docs/wrapper updates.
+- Updated `.project-tasks/backlog.md` status for `PF-044` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-044` in completed ahead-of-scope work.
 - Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
 - Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
 - Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.

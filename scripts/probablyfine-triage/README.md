@@ -15,6 +15,7 @@ Files in this folder are compatibility wrappers for script-based execution.
 3. `select_env_overrides.py`
 4. `score_and_rank.py`
 5. `triage_pipeline.py` (orchestrator)
+6. `optional_adjustment.py` (feature-flagged annotation stage)
 
 ## Utilities
 

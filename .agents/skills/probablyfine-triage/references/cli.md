@@ -103,3 +103,20 @@ ECR:
 1. `PROBABLYFINE_ECR_FILE` (must exist)
 2. repo-local `ecr_findings.json`
 3. AWS ECR API (`boto3` + ambient AWS credentials)
+
+5. Optional adjustment annotations stage (feature-flagged)
+
+```bash
+python3 scripts/probablyfine-triage/optional_adjustment.py \
+  --report-json contextual-threat-risk-triage.json \
+  --output contextual-threat-risk-llm-adjustment.json
+```
+
+Enable adjusted score application explicitly:
+
+```bash
+python3 scripts/probablyfine-triage/optional_adjustment.py \
+  --report-json contextual-threat-risk-triage.json \
+  --output contextual-threat-risk-llm-adjustment.json \
+  --enable-adjustment
+```

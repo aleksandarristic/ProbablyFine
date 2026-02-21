@@ -39,6 +39,8 @@ def main() -> int:
 
     parser.add_argument("--output-md", type=Path, default=DEFAULT_REPORT_MD)
     parser.add_argument("--output-json", type=Path, default=DEFAULT_REPORT_JSON)
+    parser.add_argument("--llm-adjustment-output", type=Path, default=None)
+    parser.add_argument("--enable-llm-adjustment", action="store_true")
     parser.add_argument(
         "--repo-root",
         type=Path,
@@ -103,6 +105,17 @@ def main() -> int:
             "no" if args.offline else "yes",
         ],
     )
+
+    if args.llm_adjustment_output is not None:
+        llm_args = [
+            "--report-json",
+            str(args.output_json),
+            "--output",
+            str(args.llm_adjustment_output),
+        ]
+        if args.enable_llm_adjustment:
+            llm_args.append("--enable-adjustment")
+        run_stage("probablyfine.triage.optional_adjustment", llm_args)
 
     return 0
 

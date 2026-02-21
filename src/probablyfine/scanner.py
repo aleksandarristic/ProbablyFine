@@ -89,6 +89,7 @@ def run_pipeline_for_repo(
     offline: bool,
     project_root: Path,
     mode: str,
+    allow_llm_adjustment: bool,
     ecr_ref: ResolvedECRImageRef,
     collector_inputs: dict[str, str],
     collector_meta: dict[str, Any],
@@ -118,6 +119,9 @@ def run_pipeline_for_repo(
         "env_overrides": str(cache_dir / "env_overrides.json"),
         "report_md": str(report_dir / f"report-{ts}.md"),
         "report_json": str(report_dir / f"report-{ts}.json"),
+        "llm_adjustment": (
+            str(report_dir / f"report-{ts}-llm-adjustment.json") if allow_llm_adjustment else None
+        ),
     }
     cmd = [
         sys.executable,
@@ -140,6 +144,11 @@ def run_pipeline_for_repo(
         "--output-json",
         outputs["report_json"],
     ]
+    explicit_adjustment_enable = os.environ.get("PROBABLYFINE_ENABLE_LLM_ADJUSTMENT", "").strip() == "1"
+    if allow_llm_adjustment and outputs["llm_adjustment"]:
+        cmd.extend(["--llm-adjustment-output", outputs["llm_adjustment"]])
+        if explicit_adjustment_enable:
+            cmd.append("--enable-llm-adjustment")
     if offline:
         cmd.append("--offline")
 
@@ -169,6 +178,8 @@ def run_pipeline_for_repo(
             "duration_seconds": round((ended_at - started_at).total_seconds(), 3),
             "mode": mode,
             "offline": offline,
+            "allow_llm_adjustment": allow_llm_adjustment,
+            "llm_adjustment_applied": explicit_adjustment_enable and allow_llm_adjustment,
             "status": status,
             "exit_code": exit_code,
             "error": error,
@@ -202,6 +213,7 @@ def run_pipeline_for_repo(
             "report_artifacts": {
                 "markdown": outputs["report_md"],
                 "json": outputs["report_json"],
+                "llm_adjustment": outputs["llm_adjustment"],
                 "manifest": str(manifest_path),
             },
         },
@@ -283,6 +295,7 @@ def process_repo(
         offline=offline,
         project_root=project_root,
         mode=mode,
+        allow_llm_adjustment=config.processing.allow_llm_adjustment,
         ecr_ref=ecr_ref,
         collector_inputs=collector_inputs,
         collector_meta=collector_meta,

@@ -62,6 +62,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-005 deterministic/LLM boundary policy
 - PF-006 cache/report retention policy
 - PF-045 determinism verification harness
+- PF-044 optional LLM score adjustment
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

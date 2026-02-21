@@ -181,7 +181,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: produces stable score/rank output for identical inputs.
 
 ### PF-044 Optional Codex-assisted adjustment stage
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: LLM
 - Depends on: PF-043

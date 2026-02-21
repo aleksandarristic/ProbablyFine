@@ -135,6 +135,11 @@ probablyfine-retention --repo /path/to/repo --keep-days 30 --keep-latest 7
 probablyfine-verify-determinism --dependabot dependabot.json --ecr ecr_findings.json --context context.json
 ```
 
+Optional adjustment stage (feature-flagged):
+- enable config: set `.probablyfine/config.json` `processing.allow_llm_adjustment=true`
+- explicit runtime apply flag: `PROBABLYFINE_ENABLE_LLM_ADJUSTMENT=1`
+- output artifact: `.probablyfine/reports/<date>/report-<timestamp>-llm-adjustment.json`
+
 Or via modules:
 
 ```bash
