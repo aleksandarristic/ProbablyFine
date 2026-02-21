@@ -6,6 +6,13 @@ Primary pipeline command:
 python3 scripts/probablyfine-triage/triage_pipeline.py
 ```
 
+Scanner wrapper (multi-repo):
+
+```bash
+python3 scripts/probablyfine-triage/scanner.py /path/to/repo-a /path/to/repo-b --offline --mode parallel --workers 4
+python3 scripts/probablyfine-triage/scanner.py --repo-list repos.txt --offline --summary-json scan-summary.json
+```
+
 Backward-compatible wrapper:
 
 ```bash
@@ -65,3 +72,6 @@ python3 scripts/probablyfine-triage/triage_pipeline.py --offline
 - `env_overrides.json`
 - `contextual-threat-risk-triage.md`
 - `contextual-threat-risk-triage.json`
+
+
+Scanner writes per-repo run manifests to `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`.

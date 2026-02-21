@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+"""Multi-repo scanner wrapper for ProbablyFine deterministic pipeline."""
+
+from __future__ import annotations
+
+import argparse
+import concurrent.futures
+import datetime as dt
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+from probablyfine.contracts import repo_root_from_module, validate_probablyfine_contract
+
+
+def utc_now() -> dt.datetime:
+    return dt.datetime.now(dt.timezone.utc)
+
+
+def write_manifest(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, sort_keys=True)
+        f.write("\n")
+
+
+def run_pipeline_for_repo(
+    repo: Path,
+    offline: bool,
+    project_root: Path,
+    mode: str,
+) -> tuple[bool, str, Path | None]:
+    pf_dir = repo / ".probablyfine"
+    started_at = utc_now()
+    date_str = started_at.strftime("%Y-%m-%d")
+    ts = started_at.strftime("%Y-%m-%dT%H%M%SZ")
+    run_id = started_at.strftime("%Y%m%dT%H%M%S%fZ")
+
+    cache_dir = pf_dir / "cache" / date_str
+    report_dir = pf_dir / "reports" / date_str
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    report_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = report_dir / f"run-manifest-{run_id}.json"
+
+    inputs = {
+        "dependabot": str(repo / "dependabot.json"),
+        "ecr": str(repo / "ecr_findings.json"),
+        "context": str(pf_dir / "context.json"),
+        "config": str(pf_dir / "config.json"),
+    }
+    outputs = {
+        "normalized": str(cache_dir / "normalized_findings.json"),
+        "threat_intel": str(cache_dir / "threat_intel.json"),
+        "env_overrides": str(cache_dir / "env_overrides.json"),
+        "report_md": str(report_dir / f"report-{ts}.md"),
+        "report_json": str(report_dir / f"report-{ts}.json"),
+    }
+    cmd = [
+        sys.executable,
+        "-m",
+        "probablyfine.triage.triage_pipeline",
+        "--dependabot",
+        inputs["dependabot"],
+        "--ecr",
+        inputs["ecr"],
+        "--context",
+        inputs["context"],
+        "--normalized",
+        outputs["normalized"],
+        "--threat-intel",
+        outputs["threat_intel"],
+        "--env-overrides",
+        outputs["env_overrides"],
+        "--output-md",
+        outputs["report_md"],
+        "--output-json",
+        outputs["report_json"],
+    ]
+    if offline:
+        cmd.append("--offline")
+
+    env = os.environ.copy()
+    src_dir = project_root / "src"
+    current = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = str(src_dir) if not current else f"{src_dir}:{current}"
+
+    status = "ok"
+    exit_code = 0
+    error: str | None = None
+    try:
+        subprocess.run(cmd, check=True, env=env)
+    except subprocess.CalledProcessError as exc:
+        status = "error"
+        exit_code = exc.returncode
+        error = f"pipeline failed with exit code {exc.returncode}"
+
+    ended_at = utc_now()
+    write_manifest(
+        manifest_path,
+        {
+            "run_id": run_id,
+            "repo_path": str(repo),
+            "started_at": started_at.isoformat(),
+            "ended_at": ended_at.isoformat(),
+            "duration_seconds": round((ended_at - started_at).total_seconds(), 3),
+            "mode": mode,
+            "offline": offline,
+            "status": status,
+            "exit_code": exit_code,
+            "error": error,
+            "inputs": inputs,
+            "outputs": outputs,
+            "command": cmd,
+        },
+    )
+    if status != "ok":
+        return False, error or "pipeline failed", manifest_path
+
+    return True, "ok", manifest_path
+
+
+def process_repo(
+    repo: Path,
+    offline: bool,
+    project_root: Path,
+    mode: str,
+) -> tuple[Path, bool, str]:
+    repo_path = repo.resolve()
+    errors = validate_probablyfine_contract(repo_path, project_root)
+    if errors:
+        return repo_path, False, "; ".join(errors)
+
+    ok, detail, manifest = run_pipeline_for_repo(repo_path, offline=offline, project_root=project_root, mode=mode)
+    if manifest:
+        detail = f"{detail}; manifest={manifest}"
+    return repo_path, ok, detail
+
+
+def load_repos(repo_args: list[Path], repo_list: Path | None) -> list[Path]:
+    repos: list[Path] = list(repo_args)
+    if repo_list is None:
+        return repos
+
+    with repo_list.open("r", encoding="utf-8") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            repos.append(Path(line))
+    return repos
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("repos", nargs="*", type=Path, help="One or more repository roots to scan")
+    parser.add_argument(
+        "--repo-list",
+        type=Path,
+        default=None,
+        help="Optional newline-delimited file of repo paths (supports # comments).",
+    )
+    parser.add_argument("--offline", action="store_true", help="Skip internet EPSS/KEV fetch stage")
+    parser.add_argument("--mode", choices=["sequential", "parallel"], default="sequential")
+    parser.add_argument("--workers", type=int, default=4, help="Parallel worker count when --mode parallel")
+    parser.add_argument(
+        "--summary-json",
+        type=Path,
+        default=None,
+        help="Optional path to write deterministic run summary JSON.",
+    )
+    args = parser.parse_args()
+
+    if args.workers < 1:
+        raise SystemExit("--workers must be >= 1")
+
+    repos = load_repos(args.repos, args.repo_list)
+    if not repos:
+        raise SystemExit("No repository paths supplied. Use positional repos and/or --repo-list.")
+
+    project_root = repo_root_from_module(__file__)
+    results: list[tuple[Path, bool, str]] = []
+
+    if args.mode == "sequential":
+        for repo in repos:
+            results.append(process_repo(repo, offline=args.offline, project_root=project_root, mode=args.mode))
+    else:
+        indexed_results: dict[int, tuple[Path, bool, str]] = {}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
+            futures = {
+                pool.submit(process_repo, repo, args.offline, project_root, args.mode): idx
+                for idx, repo in enumerate(repos)
+            }
+            for future in concurrent.futures.as_completed(futures):
+                idx = futures[future]
+                indexed_results[idx] = future.result()
+        for idx in range(len(repos)):
+            results.append(indexed_results[idx])
+
+    failures = [r for r in results if not r[1]]
+    summary_payload = {
+        "generated_at": utc_now().isoformat(),
+        "mode": args.mode,
+        "workers": args.workers,
+        "offline": args.offline,
+        "total": len(results),
+        "ok": len(results) - len(failures),
+        "failed": len(failures),
+        "results": [
+            {"repo": str(repo), "status": "ok" if ok else "error", "detail": detail}
+            for repo, ok, detail in results
+        ],
+    }
+    for repo, ok, detail in results:
+        state = "OK" if ok else "ERROR"
+        print(f"[{state}] {repo} :: {detail}")
+
+    print(f"summary: total={len(results)} ok={len(results) - len(failures)} failed={len(failures)}")
+    if args.summary_json is not None:
+        write_manifest(args.summary_json, summary_payload)
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

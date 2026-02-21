@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probablyfine.local/schemas/context.schema.json",
+  "title": "ProbablyFine Context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "component",
+    "network",
+    "auth_boundary",
+    "data",
+    "controls"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "runtime", "orchestrator", "cloud", "platform", "namespace", "exposure"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["service", "library", "batch", "worker", "other"]},
+        "runtime": {"type": "string", "enum": ["container", "vm", "serverless", "bare-metal", "unknown"]},
+        "orchestrator": {"type": "string", "enum": ["kubernetes", "ecs", "nomad", "none", "unknown"]},
+        "cloud": {"type": "string", "enum": ["aws", "gcp", "azure", "on-prem", "unknown"]},
+        "platform": {"type": "string", "minLength": 1},
+        "namespace": {"type": "string", "minLength": 1},
+        "exposure": {"type": "string", "enum": ["internal", "public", "unknown"]}
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["internet_ingress", "service_reachability", "allowed_endpoints", "default_deny"],
+      "properties": {
+        "internet_ingress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["public_entrypoint", "unrestricted", "fronted_by", "authn", "authz", "rate_limited", "waf", "mTLS"],
+          "properties": {
+            "public_entrypoint": {"type": "boolean"},
+            "unrestricted": {"type": "boolean"},
+            "fronted_by": {"type": "array", "items": {"type": "string"}},
+            "authn": {"type": "string", "enum": ["required", "not-required", "unknown"]},
+            "authz": {"type": "string", "enum": ["required", "not-required", "unknown"]},
+            "rate_limited": {"type": "boolean"},
+            "waf": {"enum": [true, false, "unknown"]},
+            "mTLS": {"enum": [true, false, "unknown"]}
+          }
+        },
+        "service_reachability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reachable_from_internet_directly",
+            "reachable_via_public_ingress",
+            "reachable_from_same_vpc",
+            "reachable_only_from_cluster"
+          ],
+          "properties": {
+            "reachable_from_internet_directly": {"type": "boolean"},
+            "reachable_via_public_ingress": {"type": "boolean"},
+            "reachable_from_same_vpc": {"type": "boolean"},
+            "reachable_only_from_cluster": {"type": "boolean"}
+          }
+        },
+        "allowed_endpoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["method", "path", "purpose"],
+            "properties": {
+              "method": {"type": "string", "minLength": 1},
+              "path": {"type": "string", "minLength": 1},
+              "purpose": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "default_deny": {"type": "boolean"}
+      }
+    },
+    "auth_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["internet_to_ingress", "ingress_to_service", "service_requires_auth", "auth_type", "privilege_required"],
+      "properties": {
+        "internet_to_ingress": {"type": "string", "enum": ["strong", "weak", "none", "unknown"]},
+        "ingress_to_service": {"type": "string", "enum": ["strong", "weak", "none", "unknown"]},
+        "service_requires_auth": {"type": "boolean"},
+        "auth_type": {"type": "array", "items": {"type": "string"}},
+        "privilege_required": {"type": "string", "enum": ["none", "user", "service", "admin", "unknown"]}
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confidentiality_requirement", "integrity_requirement", "availability_requirement"],
+      "properties": {
+        "confidentiality_requirement": {"type": "string", "enum": ["high", "medium", "low", "unknown"]},
+        "integrity_requirement": {"type": "string", "enum": ["high", "medium", "low", "unknown"]},
+        "availability_requirement": {"type": "string", "enum": ["high", "medium", "low", "unknown"]}
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reverse_proxy_hardened", "input_validation_at_edge", "egress_restricted", "pod_security", "network_policy_enforced"],
+      "properties": {
+        "reverse_proxy_hardened": {"type": "boolean"},
+        "input_validation_at_edge": {"enum": [true, false, "unknown"]},
+        "egress_restricted": {"enum": [true, false, "unknown"]},
+        "pod_security": {"enum": [true, false, "unknown"]},
+        "network_policy_enforced": {"enum": [true, false, "unknown"]}
+      }
+    }
+  }
+}

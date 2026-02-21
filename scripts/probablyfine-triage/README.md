@@ -25,6 +25,8 @@ Preferred commands (after `pip install -e .`):
 ```bash
 probablyfine-context
 probablyfine-triage
+probablyfine-scan /path/to/repo-a /path/to/repo-b --mode parallel --workers 4
+probablyfine-scan --repo-list repos.txt --summary-json scan-summary.json
 ```
 
 Module invocation:
@@ -32,6 +34,7 @@ Module invocation:
 ```bash
 python3 -m probablyfine.triage.context_creator
 python3 -m probablyfine.triage.triage_pipeline
+python3 -m probablyfine.scanner /path/to/repo-a /path/to/repo-b --mode parallel --workers 4
 ```
 
 Interactive mode:

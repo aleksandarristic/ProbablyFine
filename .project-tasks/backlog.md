@@ -12,21 +12,21 @@ Each task is a small, readable card with:
 ## Contracts And Boundaries
 
 ### PF-001 Define `.probablyfine/` contract and required files
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: none
 - Acceptance criteria: spec document exists for `.probablyfine/context.json`, `.probablyfine/config.json`, `.probablyfine/cache/`, `.probablyfine/reports/`.
 
 ### PF-002 Define JSON schema for environment context
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-001
 - Acceptance criteria: JSON schema validates the provided context example structure and required keys.
 
 ### PF-003 Define JSON schema for repo processing config
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-001
@@ -56,35 +56,35 @@ Each task is a small, readable card with:
 ## Scanner Wrapper And Orchestration
 
 ### PF-010 Build multi-repo scanner CLI wrapper
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-001
 - Acceptance criteria: CLI accepts list of repo paths and runs processing per repo.
 
 ### PF-011 Add sequential and parallel modes
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-010
 - Acceptance criteria: `--mode sequential|parallel` works; parallel worker count is configurable.
 
 ### PF-012 Add resilient run orchestration
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010
 - Acceptance criteria: one repo failure does not crash whole run; final summary includes per-repo status.
 
 ### PF-013 Add per-repo run manifest
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010
 - Acceptance criteria: manifest links run ID, start/end times, inputs, and output paths.
 
 ### PF-070 Repo list ingestion from file
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010
@@ -100,7 +100,7 @@ Each task is a small, readable card with:
 ## Repo Discovery And Config Loading
 
 ### PF-020 Implement `.probablyfine` discovery and validation
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-003

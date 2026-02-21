@@ -35,6 +35,18 @@ Planned behaviors:
 - Write all reports under `.probablyfine/reports/<date>/`.
 - Preserve an audit trail per run.
 
+Formal contract and schemas:
+
+- `contracts/probablyfine-contract.md`
+- `contracts/schemas/context.schema.json`
+- `contracts/schemas/config.schema.json`
+
+Validate starter contract/schemas:
+
+```bash
+python3 scripts/probablyfine-triage/validate_starter_contracts.py
+```
+
 ## Starter Template
 
 A starter `.probablyfine` bundle is available at:
@@ -104,6 +116,8 @@ Run via console entry points:
 ```bash
 probablyfine-triage --offline
 probablyfine-context
+probablyfine-scan /path/to/repo-a /path/to/repo-b --offline --mode parallel --workers 4
+probablyfine-scan --repo-list repos.txt --offline --summary-json scan-summary.json
 ```
 
 Or via modules:
@@ -118,7 +132,23 @@ Compatibility wrappers still work:
 ```bash
 python3 scripts/probablyfine-triage/triage_pipeline.py --offline
 python3 scripts/probablyfine-triage/context_creator.py
+python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
 ```
+
+## Scanner Wrapper
+
+The scanner wrapper validates `.probablyfine` contract/schema requirements per target repo and then runs the deterministic triage pipeline for each repository path provided.
+It continues processing remaining repos when one repo fails validation or pipeline execution.
+
+Per-repo outputs are written to:
+- `.probablyfine/cache/<YYYY-MM-DD>/`
+- `.probablyfine/reports/<YYYY-MM-DD>/`
+
+Per-repo run manifest files are written to:
+- `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`
+
+Optional run summary output:
+- `--summary-json <path>` writes deterministic per-repo status summary JSON.
 
 ## Current Code
 

@@ -1,5 +1,13 @@
 # JSON Contracts
 
+## `.probablyfine` Input Contract
+
+Repository-level contract and schemas are defined in:
+
+- `contracts/probablyfine-contract.md`
+- `contracts/schemas/context.schema.json`
+- `contracts/schemas/config.schema.json`
+
 ## `normalized_findings.json`
 
 ```json

@@ -30,6 +30,15 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 
 - PF-060 utility script to build `.probablyfine/context.json` from guided human input
 - PF-092 Python packaging and app layout (`src/`, `pyproject.toml`, requirements, CLI entry points)
+- PF-001 `.probablyfine` contract and required files
+- PF-002 context schema
+- PF-003 config schema
+- PF-010 scanner wrapper CLI (multi-repo path list)
+- PF-020 `.probablyfine` discovery/validation
+- PF-011 sequential and parallel scanner modes
+- PF-013 per-repo run manifest
+- PF-012 resilient run orchestration
+- PF-070 repo list ingestion from file
 
 ## Exit Criteria
 
