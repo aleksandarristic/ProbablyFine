@@ -1,13 +1,13 @@
 # ProbablyFine
 
-`ProbablyFine` is a deterministic vulnerability triage project that correlates scanner outputs and deployment context to produce actionable, auditable risk reports.
+`ProbablyFine` is a vulnerability triage project that correlates scanner outputs and deployment context to produce actionable, auditable risk reports.
 
 ## Objective
 
 Given a repository, process security findings by combining:
 - GitHub Dependabot alerts
 - AWS ECR image scan findings
-- deterministic threat intel (EPSS + CISA KEV)
+- structured threat intel (EPSS + CISA KEV)
 - environment context from `.probablyfine/context.json`
 
 Then produce dated, auditable reports and cached source artifacts.
@@ -78,8 +78,8 @@ Template includes:
 
 Runtime pipeline stages:
 1. Collect findings from Dependabot and ECR.
-2. Normalize and deduplicate deterministically.
-3. Fetch deterministic threat intel (EPSS/KEV) and cache.
+2. Normalize and deduplicate findings.
+3. Fetch threat intel (EPSS/KEV) and cache.
 4. Apply environment context.
 5. Score/rank and generate reports.
 6. Optionally emit bounded adjustment annotations (feature-flagged).
@@ -91,7 +91,7 @@ End-to-end flow for each target repo:
 1. `probablyfine-scan` validates `.probablyfine/` contract and schemas.
 2. Scanner loads typed config and validates auth/input availability.
 3. Collectors write raw source artifacts under `.probablyfine/cache/<date>/`.
-4. Scanner invokes `probablyfine.triage.triage_pipeline` with deterministic stage paths.
+4. Scanner invokes `probablyfine.triage.triage_pipeline` with stage paths.
 5. Pipeline emits:
    - `normalized_findings.json`
    - `threat_intel.json`
@@ -102,55 +102,55 @@ End-to-end flow for each target repo:
    - cache audit (`cache-audit-<run-id>.json`)
    - per-date run index (`index.json`)
 
-Deterministic guarantees:
+Pipeline guarantees:
 - no randomization in scoring/ranking/sorting
 - explicit source allowlist for threat intel
-- deterministic fallback behavior on fetch failures
-- determinism harness available (`probablyfine-verify-determinism`)
+- predictable fallback behavior on fetch failures
+- verification harness available (`probablyfine-verify-determinism`)
 
 ```mermaid
 flowchart TD
-    A[Start: probablyfine-scan] --> B[Validate .probablyfine contract + schemas]
-    B --> C[Load typed config + schema version gate]
-    C --> D[Auth/Input preflight checks]
-    D --> E[Collect Dependabot findings]
-    D --> F[Collect ECR findings]
-    E --> G[Write raw cache artifacts]
+    A[Start: probablyfine-scan (Python)] --> B[Validate .probablyfine contract + schemas (Python)]
+    B --> C[Load typed config + schema version gate (Python)]
+    C --> D[Auth/Input preflight checks (Python)]
+    D --> E[Collect Dependabot findings (Python)]
+    D --> F[Collect ECR findings (Python)]
+    E --> G[Write raw cache artifacts (Python)]
     F --> G
-    G --> H[Run triage_pipeline]
-    H --> I[Normalize + dedupe]
-    I --> J[Fetch EPSS/KEV threat intel]
-    J --> K[Map context to env overrides]
-    K --> L[Deterministic score + rank]
-    L --> M[Write report.md + report.json]
+    G --> H[Run triage_pipeline (Python)]
+    H --> I[Normalize + dedupe (Python)]
+    I --> J[Fetch EPSS/KEV threat intel (Python)]
+    J --> K[Map context to env overrides (Python)]
+    K --> L[Score + rank (Python)]
+    L --> M[Write report.md + report.json (Python)]
     M --> N{allow_llm_adjustment?}
-    N -- no --> O[Skip optional adjustment]
+    N -- no --> O[Skip optional adjustment (Python)]
     N -- yes --> P{PROBABLYFINE_ENABLE_LLM_ADJUSTMENT=1?}
-    P -- no --> Q[Write annotation-only adjustment artifact]
-    P -- yes --> R[Write applied adjustment artifact]
-    O --> S[Write run-manifest + cache-audit]
+    P -- no --> Q[Write annotation-only adjustment artifact (AI optional stage; no score mutation)]
+    P -- yes --> R[Write applied adjustment artifact (AI optional stage)]
+    O --> S[Write run-manifest + cache-audit (Python)]
     Q --> S
     R --> S
-    S --> T[Update per-date reports index.json]
+    S --> T[Update per-date reports index.json (Python)]
     T --> U[End]
 ```
 
 ```mermaid
 flowchart LR
-    A[dependabot.json / Dependabot API] --> N[normalize_findings.py]
+    A[dependabot.json / Dependabot API] --> N[normalize_findings.py (Python)]
     B[ecr_findings.json / ECR API] --> N
-    N --> C[normalized_findings.json]
-    C --> T[fetch_threat_intel.py]
-    T --> D[threat_intel.json]
-    E[context.json] --> O[select_env_overrides.py]
-    O --> F[env_overrides.json]
-    C --> S[score_and_rank.py]
+    N --> C[normalized_findings.json (Python artifact)]
+    C --> T[fetch_threat_intel.py (Python)]
+    T --> D[threat_intel.json (Python artifact)]
+    E[context.json] --> O[select_env_overrides.py (Python)]
+    O --> F[env_overrides.json (Python artifact)]
+    C --> S[score_and_rank.py (Python)]
     D --> S
     F --> S
-    S --> G[contextual-threat-risk-triage.md]
-    S --> H[contextual-threat-risk-triage.json]
-    H --> L[optional_adjustment.py]
-    L --> I[report-<timestamp>-llm-adjustment.json]
+    S --> G[contextual-threat-risk-triage.md (Python artifact)]
+    S --> H[contextual-threat-risk-triage.json (Python artifact)]
+    H --> L[optional_adjustment.py (AI optional stage)]
+    L --> I[report-<timestamp>-llm-adjustment.json (AI-annotated artifact)]
 ```
 
 ## Code Map
@@ -163,7 +163,7 @@ Core runtime modules:
 - `src/probablyfine/triage/normalize_findings.py`: normalization/dedupe
 - `src/probablyfine/triage/fetch_threat_intel.py`: EPSS/KEV enrichment
 - `src/probablyfine/triage/select_env_overrides.py`: context-to-environment mapping
-- `src/probablyfine/triage/score_and_rank.py`: deterministic scoring/reporting
+- `src/probablyfine/triage/score_and_rank.py`: scoring/reporting
 - `src/probablyfine/triage/optional_adjustment.py`: optional bounded annotations
 
 Operational utilities:
@@ -176,11 +176,11 @@ Normalization stage behavior:
 - Correlation key is `(CVE, lowercase(package))`.
 - Output is written to `normalized_findings.json` with stable sorting by `(cve, package)`.
 - Source bucket is one of `Both`, `ECR-only`, `Dependabot-only`.
-- Merge logic is deterministic across input ordering for severity/fix/base-vector selection.
+- Merge logic is stable across input ordering for severity/fix/base-vector selection.
 
-Determinism policy:
-- Prefer deterministic code for parsing, joins, scoring, caching, sorting, and report generation.
-- Use Codex/LLM only where deterministic logic is impractical, and keep it bounded and auditable.
+Reliability policy:
+- Prefer explicit, repeatable code for parsing, joins, scoring, caching, sorting, and report generation.
+- Use Codex/LLM only where rule-based logic is impractical, and keep it bounded and auditable.
 
 ## Python App Layout
 
@@ -261,7 +261,7 @@ python3 -m pip install -e .
 ```
 3. Choose collector input/auth mode:
 ```bash
-# deterministic local files
+# local fixture files
 export PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json
 export PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json
 
@@ -287,7 +287,7 @@ ls -R /path/to/target-repo/.probablyfine/reports
 
 ## Scanner Wrapper
 
-The scanner wrapper validates `.probablyfine` contract/schema requirements per target repo and then runs the deterministic triage pipeline for each repository path provided.
+The scanner wrapper validates `.probablyfine` contract/schema requirements per target repo and then runs the triage pipeline for each repository path provided.
 It continues processing remaining repos when one repo fails validation or pipeline execution.
 
 Per-repo outputs are written to:
@@ -304,7 +304,7 @@ Per-date run index files are written to:
 - `.probablyfine/reports/<YYYY-MM-DD>/index.json`
 
 Optional run summary output:
-- `--summary-json <path>` writes deterministic per-repo status summary JSON.
+- `--summary-json <path>` writes per-repo status summary JSON.
 
 Run modes:
 - sequential: `probablyfine-scan /path/to/repo-a /path/to/repo-b --mode sequential`
@@ -316,7 +316,7 @@ Retention cleanup:
 - apply: `probablyfine-retention --repo /path/to/repo --apply`
 - optional report: `probablyfine-retention --repo /path/to/repo --report-json /tmp/retention.json`
 
-Determinism verification harness:
+Output verification harness:
 - `probablyfine-verify-determinism --dependabot dependabot.json --ecr ecr_findings.json --context context.json`
 - Harness runs pipeline twice with fixed timestamp injection (`PROBABLYFINE_FIXED_UTC_NOW`) and byte-compares emitted artifacts.
 
@@ -326,15 +326,15 @@ Context drift checker:
 
 Codex-guided context authoring:
 - emit questionnaire template: `python3 scripts/probablyfine-triage/context_creator.py --emit-questionnaire`
-- author from deterministic answers: `python3 scripts/probablyfine-triage/context_creator.py --codex-guided --answers-json answers.json --output .probablyfine/context.json`
+- author from structured answers: `python3 scripts/probablyfine-triage/context_creator.py --codex-guided --answers-json answers.json --output .probablyfine/context.json`
 
 Dependabot collector details:
 - Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.
-- For deterministic local testing, set `PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json` to bypass live API calls.
+- For local testing, set `PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json` to bypass live API calls.
 
-- For deterministic local testing of ECR input, set `PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json` to bypass live AWS API calls.
+- For local testing of ECR input, set `PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json` to bypass live AWS API calls.
 
-Collector retry/timeout controls (deterministic, bounded):
+Collector retry/timeout controls (bounded):
 - HTTP/GitHub: `PROBABLYFINE_HTTP_TIMEOUT_SECONDS`, `PROBABLYFINE_HTTP_MAX_ATTEMPTS`, `PROBABLYFINE_HTTP_RETRY_SLEEP_SECONDS`, `PROBABLYFINE_GITHUB_PAGE_SLEEP_SECONDS`
 - AWS/ECR: `PROBABLYFINE_AWS_TIMEOUT_SECONDS`, `PROBABLYFINE_AWS_MAX_ATTEMPTS`, `PROBABLYFINE_AWS_RETRY_SLEEP_SECONDS`
 
@@ -386,7 +386,7 @@ Create a context file interactively:
 probablyfine-context
 ```
 
-Current scripts support the staged triage flow with local inputs and deterministic outputs.
+Current scripts support the staged triage flow with local inputs and consistent outputs.
 
 ## Project Management
 
