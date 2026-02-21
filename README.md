@@ -147,6 +147,35 @@ python3 scripts/probablyfine-triage/context_creator.py
 python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
 ```
 
+## Onboarding Quickstart
+
+1. Create a target repo contract:
+```bash
+cp -R templates/probablyfine-starter/.probablyfine /path/to/target-repo/
+```
+2. Install ProbablyFine in this repository:
+```bash
+python3 -m pip install -e .
+```
+3. Choose collector input/auth mode:
+```bash
+# deterministic local files
+export PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json
+export PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json
+
+# or live Dependabot API
+export GITHUB_TOKEN=ghp_...
+```
+4. Run scanner for one repo:
+```bash
+probablyfine-scan /path/to/target-repo --offline
+```
+5. Review dated outputs:
+```bash
+ls -R /path/to/target-repo/.probablyfine/cache
+ls -R /path/to/target-repo/.probablyfine/reports
+```
+
 `triage_pipeline --repo-root /path/to/repo` writes default stage artifacts under:
 - `.probablyfine/cache/<YYYY-MM-DD>/normalized_findings.json`
 - `.probablyfine/cache/<YYYY-MM-DD>/threat_intel.json`
@@ -175,6 +204,11 @@ Per-date run index files are written to:
 Optional run summary output:
 - `--summary-json <path>` writes deterministic per-repo status summary JSON.
 
+Run modes:
+- sequential: `probablyfine-scan /path/to/repo-a /path/to/repo-b --mode sequential`
+- parallel: `probablyfine-scan /path/to/repo-a /path/to/repo-b --mode parallel --workers 4`
+- batched: `probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25`
+
 Dependabot collector details:
 - Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.
 - For deterministic local testing, set `PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json` to bypass live API calls.
@@ -200,6 +234,20 @@ ECR auth/input precedence when source is enabled:
 2. repo-local `ecr_findings.json`
 3. AWS ECR API via `boto3` and ambient AWS credentials
 4. otherwise scanner fails with explicit auth error
+
+## Output Artifacts
+
+Per repo, per date:
+- `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`
+- `.probablyfine/cache/<YYYY-MM-DD>/ecr-raw-<timestamp>.json`
+- `.probablyfine/cache/<YYYY-MM-DD>/normalized_findings.json`
+- `.probablyfine/cache/<YYYY-MM-DD>/threat_intel.json`
+- `.probablyfine/cache/<YYYY-MM-DD>/env_overrides.json`
+- `.probablyfine/cache/<YYYY-MM-DD>/cache-audit-<run-id>.json`
+- `.probablyfine/reports/<YYYY-MM-DD>/report-<timestamp>.md`
+- `.probablyfine/reports/<YYYY-MM-DD>/report-<timestamp>.json`
+- `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`
+- `.probablyfine/reports/<YYYY-MM-DD>/index.json`
 
 Large repo set control:
 - `--batch-size <n>` processes repos in bounded batches/queues (`0` disables batching).

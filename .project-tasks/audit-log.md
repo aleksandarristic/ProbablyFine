@@ -71,6 +71,10 @@
 - Documented credential/input precedence and failure behavior in `README.md` and scanner CLI reference.
 - Updated `.project-tasks/backlog.md` status for `PF-033` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-033` in completed ahead-of-scope work.
+- Completed `PF-090` documentation and onboarding.
+- Expanded `README.md` with onboarding quickstart, explicit setup/auth/run-mode commands, and consolidated output artifact paths.
+- Updated `.project-tasks/backlog.md` status for `PF-090` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-090` in completed ahead-of-scope work.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

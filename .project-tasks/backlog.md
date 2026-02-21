@@ -266,7 +266,7 @@ Each task is a small, readable card with:
 ## Documentation
 
 ### PF-090 Documentation and onboarding
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-050
