@@ -250,7 +250,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: stage tests exist with fixtures and deterministic assertions.
 
 ### PF-081 Integration tests for full repo processing
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010, PF-030, PF-031
