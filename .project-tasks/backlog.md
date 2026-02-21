@@ -47,7 +47,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: written policy lists strict deterministic stages and allowed Codex/LLM stages.
 
 ### PF-006 Define cache/report retention policy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-001

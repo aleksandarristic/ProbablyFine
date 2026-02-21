@@ -18,6 +18,7 @@ probablyfine-triage = "probablyfine.triage.triage_pipeline:main"
 probablyfine-triage-legacy = "probablyfine.triage.triage:main"
 probablyfine-context = "probablyfine.triage.context_creator:main"
 probablyfine-scan = "probablyfine.scanner:main"
+probablyfine-retention = "probablyfine.retention:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

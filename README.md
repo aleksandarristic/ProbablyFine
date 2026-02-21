@@ -40,6 +40,7 @@ Formal contract and schemas:
 - `contracts/probablyfine-contract.md`
 - `contracts/schema-versioning.md`
 - `contracts/deterministic-llm-boundary.md`
+- `contracts/retention-policy.md`
 - `contracts/schemas/context.schema.json`
 - `contracts/schemas/config.schema.json`
 
@@ -130,6 +131,7 @@ probablyfine-context
 probablyfine-scan /path/to/repo-a /path/to/repo-b --offline --mode parallel --workers 4
 probablyfine-scan --repo-list repos.txt --offline --summary-json scan-summary.json
 probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25
+probablyfine-retention --repo /path/to/repo --keep-days 30 --keep-latest 7
 ```
 
 Or via modules:
@@ -210,6 +212,11 @@ Run modes:
 - sequential: `probablyfine-scan /path/to/repo-a /path/to/repo-b --mode sequential`
 - parallel: `probablyfine-scan /path/to/repo-a /path/to/repo-b --mode parallel --workers 4`
 - batched: `probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25`
+
+Retention cleanup:
+- dry-run: `probablyfine-retention --repo /path/to/repo`
+- apply: `probablyfine-retention --repo /path/to/repo --apply`
+- optional report: `probablyfine-retention --repo /path/to/repo --report-json /tmp/retention.json`
 
 Dependabot collector details:
 - Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.

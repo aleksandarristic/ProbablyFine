@@ -13,6 +13,7 @@ Scanner wrapper (multi-repo):
 python3 scripts/probablyfine-triage/scanner.py /path/to/repo-a /path/to/repo-b --offline --mode parallel --workers 4
 python3 scripts/probablyfine-triage/scanner.py --repo-list repos.txt --offline --summary-json scan-summary.json
 python3 scripts/probablyfine-triage/scanner.py --repo-list repos.txt --offline --mode parallel --workers 4 --batch-size 25
+python3 scripts/probablyfine-triage/retention.py --repo /path/to/repo --keep-days 30 --keep-latest 7
 ```
 
 Backward-compatible wrapper:

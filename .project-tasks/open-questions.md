@@ -11,7 +11,7 @@
 - Why it matters: required for robust ECR lookup parser behavior.
 
 ## Q-003 Cache retention policy
-- Status: OPEN
+- Status: RESOLVED
 - Question: Should retention be time-based, count-based, or manual cleanup only?
 - Why it matters: impacts disk growth and audit obligations.
 

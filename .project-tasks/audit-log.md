@@ -42,6 +42,13 @@
 - Linked policy in `README.md` and resolved open question `Q-001` in `.project-tasks/open-questions.md`.
 - Updated `.project-tasks/backlog.md` status for `PF-005` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-005` in completed ahead-of-scope work.
+- Completed `PF-006` cache/report retention policy.
+- Added retention policy document (`contracts/retention-policy.md`) and deterministic cleanup utility (`src/probablyfine/retention.py`) with dry-run and apply modes.
+- Added retention compatibility wrapper and CLI entry point (`probablyfine-retention`) plus test coverage (`tests/test_retention.py`).
+- Updated README and script docs with retention command usage.
+- Resolved open question `Q-003` in `.project-tasks/open-questions.md`.
+- Updated `.project-tasks/backlog.md` status for `PF-006` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-006` in completed ahead-of-scope work.
 - Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
 - Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
 - Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.
