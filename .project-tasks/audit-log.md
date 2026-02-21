@@ -62,6 +62,12 @@
 - Added stage tests (`tests/test_optional_adjustment.py`) and docs/wrapper updates.
 - Updated `.project-tasks/backlog.md` status for `PF-044` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-044` in completed ahead-of-scope work.
+- Completed `PF-062` context drift checker.
+- Added deterministic context drift checker (`src/probablyfine/triage/context_drift_checker.py`) with warnings for schema failures, stale file age, unknown-heavy context, and empty endpoint definitions.
+- Added compatibility wrapper/CLI entry (`probablyfine-context-drift`) and test coverage (`tests/test_context_drift_checker.py`).
+- Updated docs and CLI references with context drift checker usage.
+- Updated `.project-tasks/backlog.md` status for `PF-062` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-062` in completed ahead-of-scope work.
 - Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
 - Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
 - Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.

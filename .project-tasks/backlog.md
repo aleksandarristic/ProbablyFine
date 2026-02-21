@@ -234,7 +234,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: script can launch guided question flow compatible with Codex usage.
 
 ### PF-062 Context drift checker
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: DET
 - Depends on: PF-060

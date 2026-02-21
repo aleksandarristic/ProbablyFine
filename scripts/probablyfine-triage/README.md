@@ -31,6 +31,7 @@ probablyfine-scan --repo-list repos.txt --summary-json scan-summary.json
 probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25
 probablyfine-retention --repo /path/to/repo --keep-days 30 --keep-latest 7
 probablyfine-verify-determinism --dependabot dependabot.json --ecr ecr_findings.json --context context.json
+probablyfine-context-drift --context .probablyfine/context.json
 ```
 
 Module invocation:

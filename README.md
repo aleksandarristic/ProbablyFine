@@ -133,6 +133,7 @@ probablyfine-scan --repo-list repos.txt --offline --summary-json scan-summary.js
 probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25
 probablyfine-retention --repo /path/to/repo --keep-days 30 --keep-latest 7
 probablyfine-verify-determinism --dependabot dependabot.json --ecr ecr_findings.json --context context.json
+probablyfine-context-drift --context .probablyfine/context.json
 ```
 
 Optional adjustment stage (feature-flagged):
@@ -227,6 +228,10 @@ Retention cleanup:
 Determinism verification harness:
 - `probablyfine-verify-determinism --dependabot dependabot.json --ecr ecr_findings.json --context context.json`
 - Harness runs pipeline twice with fixed timestamp injection (`PROBABLYFINE_FIXED_UTC_NOW`) and byte-compares emitted artifacts.
+
+Context drift checker:
+- `probablyfine-context-drift --context .probablyfine/context.json`
+- warns for stale context age, schema-invalid context, excessive `unknown` fields, or empty endpoint definitions.
 
 Dependabot collector details:
 - Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.

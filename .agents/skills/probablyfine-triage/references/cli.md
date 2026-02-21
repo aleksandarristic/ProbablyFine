@@ -120,3 +120,13 @@ python3 scripts/probablyfine-triage/optional_adjustment.py \
   --output contextual-threat-risk-llm-adjustment.json \
   --enable-adjustment
 ```
+
+Context drift checker:
+
+```bash
+python3 scripts/probablyfine-triage/context_drift_checker.py \
+  --context .probablyfine/context.json \
+  --schema contracts/schemas/context.schema.json \
+  --max-age-days 30 \
+  --max-unknown-fields 8
+```
