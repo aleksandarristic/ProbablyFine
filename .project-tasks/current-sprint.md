@@ -25,6 +25,10 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-044 optional LLM score adjustment
 - PF-061 Codex-assisted environment authoring
 
+## Completed In Scope
+
+- PF-041 threat intel enrichment
+
 ## Completed Ahead Of Scope
 
 - PF-060 utility script to build `.probablyfine/context.json` from guided human input

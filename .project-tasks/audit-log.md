@@ -31,6 +31,10 @@
 
 ## 2026-02-21
 
+- Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
+- Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
+- Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-041` as completed in scope.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

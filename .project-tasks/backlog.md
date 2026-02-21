@@ -160,7 +160,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: outputs deterministic `normalized_findings.json` with stable ordering.
 
 ### PF-041 Threat intel stage (EPSS/KEV)
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-040

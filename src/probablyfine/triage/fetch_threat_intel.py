@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
+import sys
 from pathlib import Path
 
 from .pipeline_common import KEV_REPO_URL, EPSS_URL, build_threat_cache, read_json, write_json
@@ -11,8 +13,9 @@ from .pipeline_common import KEV_REPO_URL, EPSS_URL, build_threat_cache, read_js
 
 def empty_cache(cves: list[str]) -> dict:
     return {
-        "generated_at": None,
+        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "sources": {"epss": EPSS_URL, "kev": KEV_REPO_URL},
+        "fetch_status": "fallback-empty",
         "items": [
             {
                 "cve": cve,
@@ -48,7 +51,13 @@ def main() -> int:
         write_json(args.output, empty_cache(cves))
         return 0
 
-    cache = build_threat_cache(cves)
+    try:
+        cache = build_threat_cache(cves)
+        if isinstance(cache, dict):
+            cache["fetch_status"] = "ok"
+    except Exception as exc:
+        print(f"warning: threat intel fetch failed, using empty cache: {exc}", file=sys.stderr)
+        cache = empty_cache(cves)
     write_json(args.output, cache)
     return 0
 
