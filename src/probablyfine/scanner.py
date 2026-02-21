@@ -13,7 +13,12 @@ import sys
 from pathlib import Path
 
 from probablyfine.contracts import repo_root_from_module, validate_probablyfine_contract
-from probablyfine.config_loader import ProbablyFineConfig, load_probablyfine_config
+from probablyfine.config_loader import (
+    ProbablyFineConfig,
+    ResolvedECRImageRef,
+    load_probablyfine_config,
+    resolve_ecr_image_reference,
+)
 
 
 def utc_now() -> dt.datetime:
@@ -32,6 +37,7 @@ def run_pipeline_for_repo(
     offline: bool,
     project_root: Path,
     mode: str,
+    ecr_ref: ResolvedECRImageRef,
 ) -> tuple[bool, str, Path | None]:
     pf_dir = repo / ".probablyfine"
     started_at = utc_now()
@@ -113,6 +119,12 @@ def run_pipeline_for_repo(
             "error": error,
             "inputs": inputs,
             "outputs": outputs,
+            "resolved_ecr_image_ref": {
+                "normalized_ref": ecr_ref.normalized_ref,
+                "image_type": ecr_ref.image_type,
+                "image_value": ecr_ref.image_value,
+                "image_id": ecr_ref.image_id,
+            },
             "command": cmd,
         },
     )
@@ -142,7 +154,18 @@ def process_repo(
     if not config.processing.deterministic_mode:
         return repo_path, False, f"{config_path}: deterministic_mode must be true"
 
-    ok, detail, manifest = run_pipeline_for_repo(repo_path, offline=offline, project_root=project_root, mode=mode)
+    try:
+        ecr_ref = resolve_ecr_image_reference(config)
+    except Exception as exc:
+        return repo_path, False, f"{config_path}: ecr image reference resolution failed: {exc}"
+
+    ok, detail, manifest = run_pipeline_for_repo(
+        repo_path,
+        offline=offline,
+        project_root=project_root,
+        mode=mode,
+        ecr_ref=ecr_ref,
+    )
     if manifest:
         detail = f"{detail}; manifest={manifest}"
     return repo_path, ok, detail

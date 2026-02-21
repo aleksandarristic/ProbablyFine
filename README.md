@@ -42,6 +42,7 @@ Formal contract and schemas:
 - `contracts/schemas/config.schema.json`
 
 Typed config loader: `src/probablyfine/config_loader.py`
+ECR image reference resolver (tag/digest normalization): `resolve_ecr_image_reference` in `src/probablyfine/config_loader.py`.
 
 Validate starter contract/schemas:
 

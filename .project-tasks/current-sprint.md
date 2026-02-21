@@ -41,6 +41,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-071 repo batching and queueing
 
 - PF-021 typed config loader
+- PF-022 ECR image reference resolution
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

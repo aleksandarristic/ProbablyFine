@@ -62,3 +62,7 @@
 - Scanner now fails clearly when typed config load fails or deterministic mode is disabled.
 - Updated `README.md` reference for typed config loader.
 - Marked task `PF-021` as `DONE` and aligned current sprint tracking.
+- Implemented deterministic ECR image reference resolution for tag/digest config inputs (`PF-022`).
+- Scanner now validates/resolves ECR image references before run and records normalized resolved refs in per-repo run manifests.
+- Updated `README.md` with config loader and ECR resolver references.
+- Marked task `PF-022` as `DONE` and aligned sprint tracking.

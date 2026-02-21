@@ -114,7 +114,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: config loader returns validated typed model objects.
 
 ### PF-022 Resolve ECR image reference from config
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-020

@@ -56,6 +56,18 @@ class ProbablyFineConfig:
     raw: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class ResolvedECRImageRef:
+    region: str
+    registry_id: str
+    repository: str
+    image_type: str
+    image_value: str
+    image_uri: str
+    normalized_ref: str
+    image_id: dict[str, str]
+
+
 def _require_dict(path: str, value: Any) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValidationError(f"{path}: expected object")
@@ -122,4 +134,33 @@ def load_probablyfine_config(config_path: Path, project_root: Path) -> ProbablyF
         sources=SourceConfig(dependabot=dependabot, ecr=ecr),
         processing=processing,
         raw=root,
+    )
+
+
+def resolve_ecr_image_reference(config: ProbablyFineConfig) -> ResolvedECRImageRef:
+    ecr = config.sources.ecr
+    image_type = ecr.image.image_type.strip().lower()
+    value = ecr.image.value.strip()
+
+    if image_type not in {"tag", "digest"}:
+        raise ValidationError(f"$.sources.aws.ecr.image.type: unsupported type '{image_type}'")
+
+    if image_type == "digest":
+        if not value.startswith("sha256:"):
+            raise ValidationError("$.sources.aws.ecr.image.value: digest must start with 'sha256:'")
+        normalized_ref = f"{ecr.registry_id}.dkr.ecr.{ecr.region}.amazonaws.com/{ecr.repository}@{value}"
+        image_id = {"imageDigest": value}
+    else:
+        normalized_ref = f"{ecr.registry_id}.dkr.ecr.{ecr.region}.amazonaws.com/{ecr.repository}:{value}"
+        image_id = {"imageTag": value}
+
+    return ResolvedECRImageRef(
+        region=ecr.region,
+        registry_id=ecr.registry_id,
+        repository=ecr.repository,
+        image_type=image_type,
+        image_value=value,
+        image_uri=ecr.image_uri,
+        normalized_ref=normalized_ref,
+        image_id=image_id,
     )
