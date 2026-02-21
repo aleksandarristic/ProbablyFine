@@ -66,6 +66,81 @@ DEFAULT_CONTEXT: Dict[str, Any] = {
 }
 
 
+CODEX_QUESTIONNAIRE: List[Dict[str, Any]] = [
+    {"key": "component.name", "type": "string", "prompt": "Component name"},
+    {"key": "component.type", "type": "enum", "options": ["service", "library", "batch", "worker", "other"]},
+    {"key": "component.runtime", "type": "enum", "options": ["container", "vm", "serverless", "bare-metal", "unknown"]},
+    {"key": "component.orchestrator", "type": "enum", "options": ["kubernetes", "ecs", "nomad", "none", "unknown"]},
+    {"key": "component.cloud", "type": "enum", "options": ["aws", "gcp", "azure", "on-prem", "unknown"]},
+    {"key": "component.platform", "type": "string", "prompt": "Platform"},
+    {"key": "component.namespace", "type": "string", "prompt": "Namespace/environment"},
+    {"key": "component.exposure", "type": "enum", "options": ["internal", "public", "unknown"]},
+    {"key": "auth_boundary.internet_to_ingress", "type": "enum", "options": ["strong", "weak", "none", "unknown"]},
+    {"key": "auth_boundary.ingress_to_service", "type": "enum", "options": ["strong", "weak", "none", "unknown"]},
+    {"key": "auth_boundary.privilege_required", "type": "enum", "options": ["none", "user", "service", "admin", "unknown"]},
+    {"key": "data.confidentiality_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
+    {"key": "data.integrity_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
+    {"key": "data.availability_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
+]
+
+
+def _get_path(payload: Dict[str, Any], key_path: str) -> Any:
+    cur: Any = payload
+    for key in key_path.split("."):
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(key)
+    return cur
+
+
+def _set_path(payload: Dict[str, Any], key_path: str, value: Any) -> None:
+    parts = key_path.split(".")
+    cur: Any = payload
+    for key in parts[:-1]:
+        if not isinstance(cur, dict):
+            raise ValueError(f"Cannot set path '{key_path}'")
+        if key not in cur or not isinstance(cur[key], dict):
+            cur[key] = {}
+        cur = cur[key]
+    if not isinstance(cur, dict):
+        raise ValueError(f"Cannot set path '{key_path}'")
+    cur[parts[-1]] = value
+
+
+def emit_codex_questionnaire() -> None:
+    print("# Codex Guided Context Questionnaire")
+    print("# Provide answers as JSON object keyed by `key` fields below.")
+    for row in CODEX_QUESTIONNAIRE:
+        key = row["key"]
+        default = _get_path(DEFAULT_CONTEXT, key)
+        options = row.get("options")
+        if options:
+            print(f"- key: {key}")
+            print(f"  type: {row['type']}")
+            print(f"  options: {options}")
+            print(f"  default: {default}")
+        else:
+            print(f"- key: {key}")
+            print(f"  type: {row['type']}")
+            print(f"  default: {default}")
+
+
+def apply_codex_answers(payload: Dict[str, Any], answers: Dict[str, Any]) -> Dict[str, Any]:
+    allowed: Dict[str, Dict[str, Any]] = {row["key"]: row for row in CODEX_QUESTIONNAIRE}
+    for key, value in answers.items():
+        if key not in allowed:
+            raise ValueError(f"Unsupported codex answer key: {key}")
+        spec = allowed[key]
+        if spec["type"] == "enum":
+            if not isinstance(value, str) or value not in spec["options"]:
+                raise ValueError(f"Invalid value for {key}. Expected one of: {spec['options']}")
+        elif spec["type"] == "string":
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"Invalid string value for {key}")
+        _set_path(payload, key, value)
+    return payload
+
+
 def read_input(prompt: str) -> str:
     return input(prompt).strip()
 
@@ -365,8 +440,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=Path(".probablyfine/context.json"))
     parser.add_argument("--non-interactive", action="store_true", help="Write default starter context without prompts")
+    parser.add_argument("--codex-guided", action="store_true", help="Enable Codex-oriented guided authoring mode")
+    parser.add_argument("--emit-questionnaire", action="store_true", help="Print codex questionnaire template and exit")
+    parser.add_argument("--answers-json", type=Path, default=None, help="JSON file of codex answers keyed by path")
     parser.add_argument("--force", action="store_true", help="Overwrite output file if it already exists")
     args = parser.parse_args()
+
+    if args.emit_questionnaire:
+        emit_codex_questionnaire()
+        return 0
 
     if args.output.exists() and not args.force:
         if args.non_interactive:
@@ -376,7 +458,17 @@ def main() -> int:
         if not overwrite:
             raise SystemExit("Aborted by user.")
 
-    payload = build_context(non_interactive=args.non_interactive)
+    if args.codex_guided:
+        payload = build_context(non_interactive=True)
+        if args.answers_json is None:
+            emit_codex_questionnaire()
+            raise SystemExit("Codex-guided mode requires --answers-json for deterministic authoring.")
+        answers_raw = json.loads(args.answers_json.read_text(encoding="utf-8"))
+        if not isinstance(answers_raw, dict):
+            raise SystemExit("--answers-json must contain a JSON object keyed by question paths.")
+        payload = apply_codex_answers(payload, answers_raw)
+    else:
+        payload = build_context(non_interactive=args.non_interactive)
     write_context(args.output, payload)
     print(f"Wrote context: {args.output}")
     return 0

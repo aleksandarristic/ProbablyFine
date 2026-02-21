@@ -52,6 +52,8 @@ Non-interactive starter defaults:
 
 ```bash
 python3 scripts/probablyfine-triage/context_creator.py --non-interactive
+python3 scripts/probablyfine-triage/context_creator.py --emit-questionnaire
+python3 scripts/probablyfine-triage/context_creator.py --codex-guided --answers-json answers.json
 ```
 
 ## Quick run

@@ -130,3 +130,10 @@ python3 scripts/probablyfine-triage/context_drift_checker.py \
   --max-age-days 30 \
   --max-unknown-fields 8
 ```
+
+Codex-guided context authoring:
+
+```bash
+python3 scripts/probablyfine-triage/context_creator.py --emit-questionnaire
+python3 scripts/probablyfine-triage/context_creator.py --codex-guided --answers-json answers.json --output .probablyfine/context.json
+```

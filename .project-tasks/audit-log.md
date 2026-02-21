@@ -68,6 +68,12 @@
 - Updated docs and CLI references with context drift checker usage.
 - Updated `.project-tasks/backlog.md` status for `PF-062` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-062` in completed ahead-of-scope work.
+- Completed `PF-061` Codex-guided context authoring mode.
+- Extended context creator with codex-guided flow (`--codex-guided`, `--answers-json`, `--emit-questionnaire`) for deterministic questionnaire-based authoring compatible with Codex usage.
+- Added codex-guided context authoring test coverage (`tests/test_context_creator_codex.py`).
+- Updated README/script/CLI reference docs with codex-guided usage.
+- Updated `.project-tasks/backlog.md` status for `PF-061` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-061` in completed ahead-of-scope work.
 - Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
 - Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
 - Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.

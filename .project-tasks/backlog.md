@@ -227,7 +227,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: interactive CLI creates valid `.probablyfine/context.json`.
 
 ### PF-061 Codex-guided context authoring mode
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: LLM
 - Depends on: PF-060

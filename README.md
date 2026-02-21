@@ -147,6 +147,7 @@ Or via modules:
 python3 -m probablyfine.triage.triage_pipeline --offline
 python3 -m probablyfine.triage.triage_pipeline --repo-root /path/to/repo --offline
 python3 -m probablyfine.triage.context_creator
+python3 -m probablyfine.triage.context_creator --codex-guided --answers-json answers.json
 ```
 
 Compatibility wrappers still work:
@@ -155,6 +156,7 @@ Compatibility wrappers still work:
 python3 scripts/probablyfine-triage/triage_pipeline.py --offline
 python3 scripts/probablyfine-triage/triage_pipeline.py --repo-root /path/to/repo --offline
 python3 scripts/probablyfine-triage/context_creator.py
+python3 scripts/probablyfine-triage/context_creator.py --codex-guided --answers-json answers.json
 python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
 ```
 
@@ -232,6 +234,10 @@ Determinism verification harness:
 Context drift checker:
 - `probablyfine-context-drift --context .probablyfine/context.json`
 - warns for stale context age, schema-invalid context, excessive `unknown` fields, or empty endpoint definitions.
+
+Codex-guided context authoring:
+- emit questionnaire template: `python3 scripts/probablyfine-triage/context_creator.py --emit-questionnaire`
+- author from deterministic answers: `python3 scripts/probablyfine-triage/context_creator.py --codex-guided --answers-json answers.json --output .probablyfine/context.json`
 
 Dependabot collector details:
 - Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.
