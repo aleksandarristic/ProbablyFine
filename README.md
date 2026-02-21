@@ -80,6 +80,12 @@ Pipeline stages:
 4. Apply environment context.
 5. Score/rank and generate reports.
 
+Normalization stage behavior:
+- Correlation key is `(CVE, lowercase(package))`.
+- Output is written to `normalized_findings.json` with stable sorting by `(cve, package)`.
+- Source bucket is one of `Both`, `ECR-only`, `Dependabot-only`.
+- Merge logic is deterministic across input ordering for severity/fix/base-vector selection.
+
 Determinism policy:
 - Prefer deterministic code for parsing, joins, scoring, caching, sorting, and report generation.
 - Use Codex/LLM only where deterministic logic is impractical, and keep it bounded and auditable.

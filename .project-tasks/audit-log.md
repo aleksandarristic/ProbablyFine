@@ -82,3 +82,9 @@
 - Added configurable collector control env vars for attempts/timeouts/sleep intervals with bounded validation.
 - Updated scanner docs and CLI references for collector retry/timeout controls.
 - Marked task `PF-032` as `DONE` and aligned sprint tracking.
+- Completed deterministic normalize/dedupe stage for correlated Dependabot + ECR findings (`PF-040`).
+- Hardened normalization determinism by selecting CVSS base vectors order-independently during merge.
+- Added focused normalization tests at `tests/test_normalize_findings.py` for dedupe/sorting and order-stable correlation behavior.
+- Ran offline pipeline smoke test with local fixtures to verify stage artifacts are emitted (`normalized_findings.json`, `threat_intel.json`, `env_overrides.json`, report outputs).
+- Updated docs in `README.md` and skill-stage references for normalization output behavior.
+- Marked task `PF-040` as `DONE` and aligned sprint tracking.

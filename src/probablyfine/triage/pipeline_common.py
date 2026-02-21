@@ -145,6 +145,11 @@ def best_fix_version(versions: Iterable[Optional[str]]) -> Optional[str]:
     return vals[0] if vals else None
 
 
+def best_base_vector(vectors: Iterable[Optional[str]]) -> Optional[str]:
+    vals = sorted({v.strip() for v in vectors if isinstance(v, str) and v.strip()})
+    return vals[0] if vals else None
+
+
 def extract_dependabot(dependabot: Any) -> List[InputFinding]:
     items = as_list(dependabot)
     if isinstance(dependabot, dict):
@@ -178,16 +183,14 @@ def extract_dependabot(dependabot: Any) -> List[InputFinding]:
             or get_in(item, ["first_patched_version", "identifier"])
         )
 
-        base_vector = (
+        base_vector = best_base_vector(
+            [
             get_in(item, ["security_advisory", "cvss", "vector_string"])
             or get_in(item, ["cvss", "vectorString"])
             or get_in(item, ["cvss", "vector_string"])
             or item.get("cvss_vector")
+            ]
         )
-        if isinstance(base_vector, str):
-            base_vector = base_vector.strip() or None
-        else:
-            base_vector = None
 
         evidence = str(item.get("id") or item.get("number") or item.get("html_url") or "unknown")
 
@@ -249,14 +252,14 @@ def extract_ecr(ecr_data: Any) -> List[InputFinding]:
 
         severity = norm_severity(item.get("severity") or pkg_details.get("severity"))
 
-        base_vector = None
+        vectors: List[str] = []
         for cvss in as_list(item.get("cvss")):
             if not isinstance(cvss, dict):
                 continue
             vec = cvss.get("scoringVector") or cvss.get("vectorString")
             if isinstance(vec, str) and vec.strip():
-                base_vector = vec.strip()
-                break
+                vectors.append(vec)
+        base_vector = best_base_vector(vectors)
 
         evidence = str(item.get("findingArn") or item.get("name") or item.get("uri") or "unknown")
 
@@ -296,8 +299,7 @@ def correlate(findings: Sequence[InputFinding]) -> List[CorrelatedFinding]:
             current.severity = f.severity
         if f.fix_version:
             current.fix_version = best_fix_version([current.fix_version, f.fix_version])
-        if not current.base_vector and f.base_vector:
-            current.base_vector = f.base_vector
+        current.base_vector = best_base_vector([current.base_vector, f.base_vector])
         current.evidence_ids.append(f.evidence or "unknown")
 
     return sorted(merged.values(), key=lambda x: (x.cve, x.package))

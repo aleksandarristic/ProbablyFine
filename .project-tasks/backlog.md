@@ -153,7 +153,7 @@ Each task is a small, readable card with:
 ## Processing Pipeline
 
 ### PF-040 Normalize and dedupe stage
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-030, PF-031

@@ -14,3 +14,5 @@ ECR extraction:
 
 Correlation key:
 - `(cve, package)` where package is normalized lowercase and defaults to `unknown`.
+- Correlated output is sorted by `(cve, package)` for stable ordering.
+- When multiple base vectors are observed for one correlation key, selection is deterministic and order-independent.
