@@ -243,7 +243,7 @@ Each task is a small, readable card with:
 ## Testing
 
 ### PF-080 Unit tests for pipeline stages
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-040, PF-041, PF-043

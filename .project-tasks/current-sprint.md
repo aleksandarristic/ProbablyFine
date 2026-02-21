@@ -52,6 +52,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-040 normalize + dedupe stage
 - PF-051 cache audit trail writer
 - PF-032 deterministic retry/timeout/rate-limit controls
+- PF-080 unit tests for pipeline stages
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.
