@@ -197,7 +197,7 @@ Each task is a small, readable card with:
 ## Reporting And Audit Trail
 
 ### PF-050 Report generation and dated output structure
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-043

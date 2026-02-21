@@ -43,6 +43,11 @@
 - Hardened scoring input normalization for CVE/package/severity/source handling before sorting/ranking to preserve stable output with equivalent inputs.
 - Updated `.project-tasks/backlog.md` status for `PF-043` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to record `PF-043` as completed in scope.
+- Completed `PF-050` report generation and dated output structure.
+- Added `--repo-root` support in triage pipeline so default derived artifacts and reports are emitted under `.probablyfine/cache/<date>/` and `.probablyfine/reports/<date>/report-<timestamp>.*`.
+- Updated `README.md` and triage CLI reference docs with `--repo-root` usage and dated output paths.
+- Updated `.project-tasks/backlog.md` status for `PF-050` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-050` as completed in scope.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

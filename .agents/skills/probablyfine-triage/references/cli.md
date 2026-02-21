@@ -4,6 +4,7 @@ Primary pipeline command:
 
 ```bash
 python3 scripts/probablyfine-triage/triage_pipeline.py
+python3 scripts/probablyfine-triage/triage_pipeline.py --repo-root /path/to/repo
 ```
 
 Scanner wrapper (multi-repo):
@@ -74,6 +75,12 @@ python3 scripts/probablyfine-triage/triage_pipeline.py --offline
 - `contextual-threat-risk-triage.md`
 - `contextual-threat-risk-triage.json`
 
+With `--repo-root /path/to/repo`, default outputs are written to:
+- `.probablyfine/cache/<YYYY-MM-DD>/normalized_findings.json`
+- `.probablyfine/cache/<YYYY-MM-DD>/threat_intel.json`
+- `.probablyfine/cache/<YYYY-MM-DD>/env_overrides.json`
+- `.probablyfine/reports/<YYYY-MM-DD>/report-<timestamp>.md`
+- `.probablyfine/reports/<YYYY-MM-DD>/report-<timestamp>.json`
 
 Scanner writes per-repo run manifests to `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`.
 

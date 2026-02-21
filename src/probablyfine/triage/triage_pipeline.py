@@ -4,10 +4,18 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import os
 import subprocess
 import sys
 from pathlib import Path
+
+DEFAULT_CONTEXT = Path("context.json")
+DEFAULT_NORMALIZED = Path("normalized_findings.json")
+DEFAULT_THREAT_INTEL = Path("threat_intel.json")
+DEFAULT_ENV_OVERRIDES = Path("env_overrides.json")
+DEFAULT_REPORT_MD = Path("contextual-threat-risk-triage.md")
+DEFAULT_REPORT_JSON = Path("contextual-threat-risk-triage.json")
 
 
 def run_stage(module: str, args: list[str]) -> None:
@@ -23,17 +31,45 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dependabot", type=Path, default=Path("dependabot.json"))
     parser.add_argument("--ecr", type=Path, default=Path("ecr_findings.json"))
-    parser.add_argument("--context", type=Path, default=Path("context.json"))
+    parser.add_argument("--context", type=Path, default=DEFAULT_CONTEXT)
 
-    parser.add_argument("--normalized", type=Path, default=Path("normalized_findings.json"))
-    parser.add_argument("--threat-intel", type=Path, default=Path("threat_intel.json"))
-    parser.add_argument("--env-overrides", type=Path, default=Path("env_overrides.json"))
+    parser.add_argument("--normalized", type=Path, default=DEFAULT_NORMALIZED)
+    parser.add_argument("--threat-intel", type=Path, default=DEFAULT_THREAT_INTEL)
+    parser.add_argument("--env-overrides", type=Path, default=DEFAULT_ENV_OVERRIDES)
 
-    parser.add_argument("--output-md", type=Path, default=Path("contextual-threat-risk-triage.md"))
-    parser.add_argument("--output-json", type=Path, default=Path("contextual-threat-risk-triage.json"))
+    parser.add_argument("--output-md", type=Path, default=DEFAULT_REPORT_MD)
+    parser.add_argument("--output-json", type=Path, default=DEFAULT_REPORT_JSON)
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        help="Repo root containing .probablyfine/; default stage outputs are written to dated cache/reports paths",
+    )
 
     parser.add_argument("--offline", action="store_true", help="Skip internet threat intel fetch")
     args = parser.parse_args()
+
+    if args.repo_root:
+        now = dt.datetime.now(dt.timezone.utc)
+        date_str = now.strftime("%Y-%m-%d")
+        ts = now.strftime("%Y-%m-%dT%H%M%SZ")
+        pf_dir = args.repo_root / ".probablyfine"
+        cache_dir = pf_dir / "cache" / date_str
+        report_dir = pf_dir / "reports" / date_str
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        report_dir.mkdir(parents=True, exist_ok=True)
+
+        if args.context == DEFAULT_CONTEXT:
+            args.context = pf_dir / "context.json"
+        if args.normalized == DEFAULT_NORMALIZED:
+            args.normalized = cache_dir / "normalized_findings.json"
+        if args.threat_intel == DEFAULT_THREAT_INTEL:
+            args.threat_intel = cache_dir / "threat_intel.json"
+        if args.env_overrides == DEFAULT_ENV_OVERRIDES:
+            args.env_overrides = cache_dir / "env_overrides.json"
+        if args.output_md == DEFAULT_REPORT_MD:
+            args.output_md = report_dir / f"report-{ts}.md"
+        if args.output_json == DEFAULT_REPORT_JSON:
+            args.output_json = report_dir / f"report-{ts}.json"
 
     run_stage(
         "probablyfine.triage.normalize_findings",
