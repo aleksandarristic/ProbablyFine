@@ -28,6 +28,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 ## Completed In Scope
 
 - PF-041 threat intel enrichment
+- PF-042 context mapping
 
 ## Completed Ahead Of Scope
 

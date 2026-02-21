@@ -167,7 +167,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: CVEs are enriched from allowed sources only and cached in `threat_intel.json`.
 
 ### PF-042 Context mapping stage for CVSS environmental metrics
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-002

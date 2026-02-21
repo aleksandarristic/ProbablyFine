@@ -35,6 +35,10 @@
 - Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
 - Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to record `PF-041` as completed in scope.
+- Completed `PF-042` context mapping stage for CVSS environmental metrics.
+- Updated environment override mapping to read canonical nested context schema fields (`data`, `network`, `auth_boundary`, `component`) with deterministic legacy-key fallback.
+- Updated `.project-tasks/backlog.md` status for `PF-042` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-042` as completed in scope.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

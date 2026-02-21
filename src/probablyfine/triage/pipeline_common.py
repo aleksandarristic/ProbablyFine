@@ -473,27 +473,46 @@ def env_metrics(context: Any) -> Dict[str, str]:
             "runtime_presence_default": "unknown",
         }
 
-    cr = req_metric(context.get("confidentiality_requirement"), "CR")
-    ir = req_metric(context.get("integrity_requirement"), "IR")
-    ar = req_metric(context.get("availability_requirement"), "AR")
+    data = context.get("data") if isinstance(context.get("data"), dict) else {}
+    cr = req_metric(data.get("confidentiality_requirement") or context.get("confidentiality_requirement"), "CR")
+    ir = req_metric(data.get("integrity_requirement") or context.get("integrity_requirement"), "IR")
+    ar = req_metric(data.get("availability_requirement") or context.get("availability_requirement"), "AR")
 
-    ingress = context.get("ingress") if isinstance(context.get("ingress"), dict) else {}
-    reach = (
+    network = context.get("network") if isinstance(context.get("network"), dict) else {}
+    internet_ingress = (
+        network.get("internet_ingress") if isinstance(network.get("internet_ingress"), dict) else {}
+    )
+    service_reachability = (
+        network.get("service_reachability") if isinstance(network.get("service_reachability"), dict) else {}
+    )
+
+    ingress_legacy = context.get("ingress") if isinstance(context.get("ingress"), dict) else {}
+    reach_legacy = (
         context.get("network_reachability")
         if isinstance(context.get("network_reachability"), dict)
         else {}
     )
 
     if (
-        ingress.get("public_lb") is True
-        or ingress.get("public_ip") is True
-        or ingress.get("sg_allows_0_0_0_0") is True
-        or reach.get("reachable_from_internet") is True
+        internet_ingress.get("public_entrypoint") is True
+        or internet_ingress.get("unrestricted") is True
+        or service_reachability.get("reachable_from_internet_directly") is True
+        or service_reachability.get("reachable_via_public_ingress") is True
+        or ingress_legacy.get("public_lb") is True
+        or ingress_legacy.get("public_ip") is True
+        or ingress_legacy.get("sg_allows_0_0_0_0") is True
+        or reach_legacy.get("reachable_from_internet") is True
     ):
         mav = "MAV:N"
-    elif reach.get("reachable_from_same_vpc") is True:
+    elif (
+        service_reachability.get("reachable_from_same_vpc") is True
+        or reach_legacy.get("reachable_from_same_vpc") is True
+    ):
         mav = "MAV:A"
-    elif reach.get("reachable_only_from_same_host") is True:
+    elif (
+        service_reachability.get("reachable_only_from_cluster") is True
+        or reach_legacy.get("reachable_only_from_same_host") is True
+    ):
         mav = "MAV:L"
     else:
         mav = "MAV:X"
@@ -504,22 +523,39 @@ def env_metrics(context: Any) -> Dict[str, str]:
         "service": "MPR:L",
         "admin": "MPR:H",
     }
-    pr = context.get("privileges_required")
+    auth_boundary_obj = (
+        context.get("auth_boundary") if isinstance(context.get("auth_boundary"), dict) else {}
+    )
+    pr = auth_boundary_obj.get("privilege_required") or context.get("privileges_required")
     mpr = mpr_map.get(pr.strip().lower(), "MPR:X") if isinstance(pr, str) else "MPR:X"
 
-    exposure = context.get("exposure") if isinstance(context.get("exposure"), str) else "unknown"
+    component = context.get("component") if isinstance(context.get("component"), dict) else {}
+    exposure = component.get("exposure") if isinstance(component.get("exposure"), str) else context.get("exposure")
+    if not isinstance(exposure, str):
+        exposure = "unknown"
     exposure = exposure.strip().lower()
-    auth_boundary = (
+    auth_boundary_legacy = (
         context.get("auth_boundary").strip().lower()
         if isinstance(context.get("auth_boundary"), str)
         else "unknown"
     )
+    internet_to_ingress = auth_boundary_obj.get("internet_to_ingress")
+    ingress_to_service = auth_boundary_obj.get("ingress_to_service")
+    has_none_boundary = (
+        auth_boundary_legacy == "none"
+        or str(internet_to_ingress).strip().lower() == "none"
+        or str(ingress_to_service).strip().lower() == "none"
+    )
 
-    if context.get("requires_mtls") is True or context.get("service_mesh_policy_enforced") is True:
+    if (
+        context.get("requires_mtls") is True
+        or context.get("service_mesh_policy_enforced") is True
+        or internet_ingress.get("mTLS") is True
+    ):
         mac = "MAC:H"
-    elif exposure == "internal" and auth_boundary != "none":
+    elif exposure == "internal" and not has_none_boundary:
         mac = "MAC:H"
-    elif exposure == "public" and auth_boundary == "none":
+    elif exposure == "public" and has_none_boundary:
         mac = "MAC:L"
     else:
         mac = "MAC:X"
