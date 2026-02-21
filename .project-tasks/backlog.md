@@ -204,7 +204,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: reports are written under `.probablyfine/reports/<date>/report-<timestamp>.*`.
 
 ### PF-051 Cache audit trail writer
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-030, PF-031, PF-041

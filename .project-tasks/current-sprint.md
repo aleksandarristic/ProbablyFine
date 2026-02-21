@@ -42,6 +42,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-021 typed config loader
 - PF-022 ECR image reference resolution
 - PF-030 Dependabot collector (raw cache)
+- PF-051 cache audit trail writer
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

@@ -148,6 +148,9 @@ Per-repo outputs are written to:
 - `.probablyfine/cache/<YYYY-MM-DD>/`
 - `.probablyfine/reports/<YYYY-MM-DD>/`
 
+Per-repo cache audit files are written to:
+- `.probablyfine/cache/<YYYY-MM-DD>/cache-audit-<run-id>.json`
+
 Per-repo run manifest files are written to:
 - `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`
 

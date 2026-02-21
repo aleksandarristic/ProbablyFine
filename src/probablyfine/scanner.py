@@ -54,6 +54,7 @@ def run_pipeline_for_repo(
     cache_dir.mkdir(parents=True, exist_ok=True)
     report_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = report_dir / f"run-manifest-{run_id}.json"
+    cache_audit_path = cache_dir / f"cache-audit-{run_id}.json"
 
     inputs = {
         "dependabot": collector_inputs["dependabot"],
@@ -131,6 +132,28 @@ def run_pipeline_for_repo(
             },
             "collector_meta": collector_meta,
             "command": cmd,
+        },
+    )
+    write_manifest(
+        cache_audit_path,
+        {
+            "run_id": run_id,
+            "repo_path": str(repo),
+            "date": date_str,
+            "generated_at": ended_at.isoformat(),
+            "status": status,
+            "collector_inputs": collector_inputs,
+            "collector_meta": collector_meta,
+            "derived_artifacts": {
+                "normalized_findings": outputs["normalized"],
+                "threat_intel": outputs["threat_intel"],
+                "env_overrides": outputs["env_overrides"],
+            },
+            "report_artifacts": {
+                "markdown": outputs["report_md"],
+                "json": outputs["report_json"],
+                "manifest": str(manifest_path),
+            },
         },
     )
     if status != "ok":

@@ -74,3 +74,7 @@
 - Added deterministic local override for ECR collector via `PROBABLYFINE_ECR_FILE` with fallback to local `ecr_findings.json`.
 - Scanner now feeds pipeline from cached ECR raw artifact path and records ECR collector metadata in run manifest.
 - Marked task `PF-031` as `DONE` and aligned sprint tracking.
+- Implemented cache audit trail writer artifacts at `.probablyfine/cache/<date>/cache-audit-<run-id>.json` (`PF-051`).
+- Cache audit payload now records collector inputs/metadata and derived/report artifact paths per run.
+- Updated `README.md` to document cache audit output location.
+- Marked task `PF-051` as `DONE` and aligned sprint tracking.
