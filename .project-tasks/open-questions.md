@@ -1,7 +1,7 @@
 # Open Questions
 
 ## Q-001 Deterministic-only score vs optional LLM-adjusted score
-- Status: OPEN
+- Status: RESOLVED
 - Question: Should final risk score remain strictly deterministic in all modes, or allow an optional LLM adjustment layer?
 - Why it matters: affects reproducibility and policy controls.
 

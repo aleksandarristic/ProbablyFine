@@ -40,7 +40,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: all config files include `schema_version`; migration behavior documented.
 
 ### PF-005 Define deterministic/LLM boundary policy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-001

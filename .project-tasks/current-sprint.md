@@ -59,6 +59,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-033 data source authentication strategy
 - PF-090 documentation and onboarding
 - PF-004 config versioning strategy
+- PF-005 deterministic/LLM boundary policy
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

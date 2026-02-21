@@ -39,6 +39,7 @@ Formal contract and schemas:
 
 - `contracts/probablyfine-contract.md`
 - `contracts/schema-versioning.md`
+- `contracts/deterministic-llm-boundary.md`
 - `contracts/schemas/context.schema.json`
 - `contracts/schemas/config.schema.json`
 
