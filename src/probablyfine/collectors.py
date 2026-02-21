@@ -10,7 +10,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
-from probablyfine.config_loader import ProbablyFineConfig
+from probablyfine.config_loader import ProbablyFineConfig, ResolvedECRImageRef
 
 
 class CollectorError(Exception):
@@ -87,3 +87,51 @@ def collect_dependabot_findings(
 
     _write_json(out_path, alerts)
     return out_path, {"source": "github-api", "items": len(alerts), "pages": page}
+
+
+def collect_ecr_findings(
+    config: ProbablyFineConfig,
+    ecr_ref: ResolvedECRImageRef,
+    repo_path: Path,
+    cache_dir: Path,
+    timestamp_token: str,
+) -> tuple[Path, dict[str, Any]]:
+    out_path = cache_dir / f"ecr-raw-{timestamp_token}.json"
+
+    if not config.sources.ecr.enabled:
+        _write_json(out_path, {"findings": []})
+        return out_path, {"source": "disabled"}
+
+    override = os.environ.get("PROBABLYFINE_ECR_FILE", "").strip()
+    if override:
+        payload = _read_json(Path(override))
+        _write_json(out_path, payload)
+        return out_path, {"source": f"file:{override}"}
+
+    fallback = repo_path / "ecr_findings.json"
+
+    try:
+        import boto3  # type: ignore
+    except Exception:
+        if fallback.exists():
+            payload = _read_json(fallback)
+            _write_json(out_path, payload)
+            return out_path, {"source": f"file:{fallback}"}
+        raise CollectorError("boto3 is not available and no local ecr_findings.json fallback exists")
+
+    client = boto3.client("ecr", region_name=ecr_ref.region)
+    try:
+        payload = client.describe_image_scan_findings(
+            registryId=ecr_ref.registry_id,
+            repositoryName=ecr_ref.repository,
+            imageId=ecr_ref.image_id,
+        )
+    except Exception as exc:
+        if fallback.exists():
+            payload = _read_json(fallback)
+            _write_json(out_path, payload)
+            return out_path, {"source": f"file:{fallback}", "fallback_reason": str(exc)}
+        raise CollectorError(f"ECR API request failed: {exc}")
+
+    _write_json(out_path, payload)
+    return out_path, {"source": "aws-ecr-api", "image_id": ecr_ref.image_id}

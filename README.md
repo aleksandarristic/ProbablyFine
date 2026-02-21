@@ -158,6 +158,8 @@ Dependabot collector details:
 - Scanner fetches/open-alert Dependabot data and writes dated raw cache files: `.probablyfine/cache/<YYYY-MM-DD>/dependabot-raw-<timestamp>.json`.
 - For deterministic local testing, set `PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json` to bypass live API calls.
 
+- For deterministic local testing of ECR input, set `PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json` to bypass live AWS API calls.
+
 Large repo set control:
 - `--batch-size <n>` processes repos in bounded batches/queues (`0` disables batching).
 

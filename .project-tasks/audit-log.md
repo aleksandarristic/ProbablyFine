@@ -70,3 +70,7 @@
 - Added deterministic local override for Dependabot collector via `PROBABLYFINE_DEPENDABOT_FILE`.
 - Scanner now feeds pipeline from cached Dependabot raw artifact path and records collector metadata in run manifest.
 - Marked task `PF-030` as `DONE` and aligned sprint tracking.
+- Implemented ECR collector with `describe_image_scan_findings` API path and dated raw cache artifact output (`PF-031`).
+- Added deterministic local override for ECR collector via `PROBABLYFINE_ECR_FILE` with fallback to local `ecr_findings.json`.
+- Scanner now feeds pipeline from cached ECR raw artifact path and records ECR collector metadata in run manifest.
+- Marked task `PF-031` as `DONE` and aligned sprint tracking.

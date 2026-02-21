@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from probablyfine.collectors import CollectorError, collect_dependabot_findings
+from probablyfine.collectors import CollectorError, collect_dependabot_findings, collect_ecr_findings
 from probablyfine.contracts import repo_root_from_module, validate_probablyfine_contract
 from probablyfine.config_loader import (
     ProbablyFineConfig,
@@ -180,14 +180,24 @@ def process_repo(
     except CollectorError as exc:
         return repo_path, False, f"dependabot collector failed: {exc}"
 
-    ecr_fallback = repo_path / "ecr_findings.json"
+    try:
+        ecr_path, ecr_meta = collect_ecr_findings(
+            config=config,
+            ecr_ref=ecr_ref,
+            repo_path=repo_path,
+            cache_dir=cache_dir,
+            timestamp_token=ts,
+        )
+    except CollectorError as exc:
+        return repo_path, False, f"ecr collector failed: {exc}"
+
     collector_inputs = {
         "dependabot": str(dep_path),
-        "ecr": str(ecr_fallback),
+        "ecr": str(ecr_path),
     }
     collector_meta: dict[str, Any] = {
         "dependabot": dep_meta,
-        "ecr": {"source": f"file:{ecr_fallback}"},
+        "ecr": ecr_meta,
     }
 
     ok, detail, manifest = run_pipeline_for_repo(

@@ -130,7 +130,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: raw Dependabot payload is fetched and cached with timestamped filename.
 
 ### PF-031 ECR collector (AWS API)
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-022
