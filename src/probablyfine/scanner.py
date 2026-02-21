@@ -152,6 +152,12 @@ def load_repos(repo_args: list[Path], repo_list: Path | None) -> list[Path]:
     return repos
 
 
+def batched_repos(repos: list[Path], batch_size: int) -> list[list[Path]]:
+    if batch_size <= 0:
+        return [repos]
+    return [repos[i : i + batch_size] for i in range(0, len(repos), batch_size)]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repos", nargs="*", type=Path, help="One or more repository roots to scan")
@@ -165,6 +171,12 @@ def main() -> int:
     parser.add_argument("--mode", choices=["sequential", "parallel"], default="sequential")
     parser.add_argument("--workers", type=int, default=4, help="Parallel worker count when --mode parallel")
     parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=0,
+        help="Max repos per processing batch. 0 means no batching.",
+    )
+    parser.add_argument(
         "--summary-json",
         type=Path,
         default=None,
@@ -174,6 +186,8 @@ def main() -> int:
 
     if args.workers < 1:
         raise SystemExit("--workers must be >= 1")
+    if args.batch_size < 0:
+        raise SystemExit("--batch-size must be >= 0")
 
     repos = load_repos(args.repos, args.repo_list)
     if not repos:
@@ -181,28 +195,34 @@ def main() -> int:
 
     project_root = repo_root_from_module(__file__)
     results: list[tuple[Path, bool, str]] = []
+    batches = batched_repos(repos, args.batch_size)
 
-    if args.mode == "sequential":
-        for repo in repos:
-            results.append(process_repo(repo, offline=args.offline, project_root=project_root, mode=args.mode))
-    else:
-        indexed_results: dict[int, tuple[Path, bool, str]] = {}
-        with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
-            futures = {
-                pool.submit(process_repo, repo, args.offline, project_root, args.mode): idx
-                for idx, repo in enumerate(repos)
-            }
-            for future in concurrent.futures.as_completed(futures):
-                idx = futures[future]
-                indexed_results[idx] = future.result()
-        for idx in range(len(repos)):
-            results.append(indexed_results[idx])
+    for batch_index, batch in enumerate(batches, start=1):
+        print(f"batch {batch_index}/{len(batches)} size={len(batch)}")
+
+        if args.mode == "sequential":
+            for repo in batch:
+                results.append(process_repo(repo, offline=args.offline, project_root=project_root, mode=args.mode))
+        else:
+            indexed_results: dict[int, tuple[Path, bool, str]] = {}
+            with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
+                futures = {
+                    pool.submit(process_repo, repo, args.offline, project_root, args.mode): idx
+                    for idx, repo in enumerate(batch)
+                }
+                for future in concurrent.futures.as_completed(futures):
+                    idx = futures[future]
+                    indexed_results[idx] = future.result()
+            for idx in range(len(batch)):
+                results.append(indexed_results[idx])
 
     failures = [r for r in results if not r[1]]
     summary_payload = {
         "generated_at": utc_now().isoformat(),
         "mode": args.mode,
         "workers": args.workers,
+        "batch_size": args.batch_size,
+        "total_batches": len(batches),
         "offline": args.offline,
         "total": len(results),
         "ok": len(results) - len(failures),

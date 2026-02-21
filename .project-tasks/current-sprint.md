@@ -24,7 +24,6 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 
 - PF-044 optional LLM score adjustment
 - PF-061 Codex-assisted environment authoring
-- PF-071 batching/queueing
 
 ## Completed Ahead Of Scope
 
@@ -39,6 +38,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-013 per-repo run manifest
 - PF-012 resilient run orchestration
 - PF-070 repo list ingestion from file
+- PF-071 repo batching and queueing
 
 ## Exit Criteria
 

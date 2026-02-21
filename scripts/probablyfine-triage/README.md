@@ -27,6 +27,7 @@ probablyfine-context
 probablyfine-triage
 probablyfine-scan /path/to/repo-a /path/to/repo-b --mode parallel --workers 4
 probablyfine-scan --repo-list repos.txt --summary-json scan-summary.json
+probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25
 ```
 
 Module invocation:

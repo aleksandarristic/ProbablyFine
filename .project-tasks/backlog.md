@@ -91,7 +91,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: scanner accepts newline-delimited repo list file in addition to CLI args.
 
 ### PF-071 Repo batching and queueing
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: DET
 - Depends on: PF-011

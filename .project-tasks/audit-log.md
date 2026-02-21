@@ -54,3 +54,7 @@
 - Preserved fail-forward behavior: scanner continues processing remaining repos when individual repos fail validation or pipeline execution.
 - Updated scanner docs/CLI references for `--repo-list` and `--summary-json`.
 - Marked tasks `PF-012` and `PF-070` as `DONE` and aligned sprint tracking.
+- Added bounded repo batching/queueing to scanner via `--batch-size` (`PF-071`).
+- Scanner now processes repos in deterministic batches while preserving per-repo result ordering.
+- Updated scanner docs/CLI references for batching mode.
+- Marked task `PF-071` as `DONE` and aligned current sprint tracking.

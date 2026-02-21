@@ -118,6 +118,7 @@ probablyfine-triage --offline
 probablyfine-context
 probablyfine-scan /path/to/repo-a /path/to/repo-b --offline --mode parallel --workers 4
 probablyfine-scan --repo-list repos.txt --offline --summary-json scan-summary.json
+probablyfine-scan --repo-list repos.txt --mode parallel --workers 4 --batch-size 25
 ```
 
 Or via modules:
@@ -149,6 +150,9 @@ Per-repo run manifest files are written to:
 
 Optional run summary output:
 - `--summary-json <path>` writes deterministic per-repo status summary JSON.
+
+Large repo set control:
+- `--batch-size <n>` processes repos in bounded batches/queues (`0` disables batching).
 
 ## Current Code
 
