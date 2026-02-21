@@ -34,6 +34,51 @@ def write_manifest(path: Path, payload: dict[str, object]) -> None:
         f.write("\n")
 
 
+def _read_json(path: Path) -> dict[str, Any] | None:
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+        return payload if isinstance(payload, dict) else None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def update_run_index(report_dir: Path, date_str: str) -> Path:
+    rows: list[dict[str, Any]] = []
+    for manifest_path in sorted(report_dir.glob("run-manifest-*.json")):
+        payload = _read_json(manifest_path)
+        if payload is None:
+            continue
+        outputs = payload.get("outputs", {}) if isinstance(payload.get("outputs"), dict) else {}
+        rows.append(
+            {
+                "run_id": payload.get("run_id"),
+                "repo_path": payload.get("repo_path"),
+                "status": payload.get("status"),
+                "started_at": payload.get("started_at"),
+                "ended_at": payload.get("ended_at"),
+                "report_md": outputs.get("report_md"),
+                "report_json": outputs.get("report_json"),
+                "manifest": str(manifest_path),
+            }
+        )
+
+    rows.sort(key=lambda row: ((row.get("report_json") or ""), (row.get("run_id") or "")))
+    index_path = report_dir / "index.json"
+    write_manifest(
+        index_path,
+        {
+            "date": date_str,
+            "generated_at": utc_now().isoformat(),
+            "total_runs": len(rows),
+            "ok": sum(1 for row in rows if row.get("status") == "ok"),
+            "failed": sum(1 for row in rows if row.get("status") != "ok"),
+            "reports": rows,
+        },
+    )
+    return index_path
+
+
 def run_pipeline_for_repo(
     repo: Path,
     offline: bool,
@@ -156,6 +201,7 @@ def run_pipeline_for_repo(
             },
         },
     )
+    update_run_index(report_dir, date_str)
     if status != "ok":
         return False, error or "pipeline failed", manifest_path
 

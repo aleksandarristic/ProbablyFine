@@ -97,6 +97,14 @@ class ScannerIntegrationTests(unittest.TestCase):
             self.assertTrue(any(report_dir.glob("report-*.md")))
             self.assertTrue(any(report_dir.glob("report-*.json")))
             self.assertTrue(any(report_dir.glob("run-manifest-*.json")))
+            self.assertTrue((report_dir / "index.json").exists())
+
+            index_payload = json.loads((report_dir / "index.json").read_text(encoding="utf-8"))
+            self.assertEqual(index_payload["total_runs"], 1)
+            self.assertEqual(index_payload["ok"], 1)
+            self.assertEqual(index_payload["failed"], 0)
+            self.assertEqual(len(index_payload["reports"]), 1)
+            self.assertTrue(str(index_payload["reports"][0]["report_json"]).endswith(".json"))
 
 
 if __name__ == "__main__":

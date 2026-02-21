@@ -60,6 +60,12 @@
 - Added deterministic tests (`tests/test_failure_modes.py`) covering missing `.probablyfine/config.json`, Dependabot auth failure (no token and no fallback), and bounded timeout/retry failure handling for Dependabot API calls.
 - Updated `.project-tasks/backlog.md` status for `PF-082` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-082` in completed ahead-of-scope work.
+- Completed `PF-052` run index generation.
+- Scanner now writes `.probablyfine/reports/<YYYY-MM-DD>/index.json` by aggregating dated run manifests into deterministic report summaries.
+- Extended integration coverage to assert index generation and content.
+- Updated `README.md` output documentation for report index files.
+- Updated `.project-tasks/backlog.md` status for `PF-052` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-052` in completed ahead-of-scope work.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

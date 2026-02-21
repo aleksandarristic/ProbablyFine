@@ -211,7 +211,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: all fetched payloads are written under `.probablyfine/cache/<date>/` with metadata.
 
 ### PF-052 Run index generation
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-050, PF-051

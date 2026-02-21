@@ -169,6 +169,9 @@ Per-repo cache audit files are written to:
 Per-repo run manifest files are written to:
 - `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`
 
+Per-date run index files are written to:
+- `.probablyfine/reports/<YYYY-MM-DD>/index.json`
+
 Optional run summary output:
 - `--summary-json <path>` writes deterministic per-repo status summary JSON.
 
