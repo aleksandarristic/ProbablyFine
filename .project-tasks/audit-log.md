@@ -78,3 +78,7 @@
 - Cache audit payload now records collector inputs/metadata and derived/report artifact paths per run.
 - Updated `README.md` to document cache audit output location.
 - Marked task `PF-051` as `DONE` and aligned sprint tracking.
+- Implemented deterministic bounded retry/timeout/rate-limit controls for Dependabot and ECR collectors (`PF-032`).
+- Added configurable collector control env vars for attempts/timeouts/sleep intervals with bounded validation.
+- Updated scanner docs and CLI references for collector retry/timeout controls.
+- Marked task `PF-032` as `DONE` and aligned sprint tracking.

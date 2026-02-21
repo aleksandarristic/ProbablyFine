@@ -137,7 +137,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: ECR findings are fetched using configured image and cached as raw JSON.
 
 ### PF-032 Deterministic retry/timeout/rate-limit controls
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-030, PF-031

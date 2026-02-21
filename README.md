@@ -163,6 +163,10 @@ Dependabot collector details:
 
 - For deterministic local testing of ECR input, set `PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json` to bypass live AWS API calls.
 
+Collector retry/timeout controls (deterministic, bounded):
+- HTTP/GitHub: `PROBABLYFINE_HTTP_TIMEOUT_SECONDS`, `PROBABLYFINE_HTTP_MAX_ATTEMPTS`, `PROBABLYFINE_HTTP_RETRY_SLEEP_SECONDS`, `PROBABLYFINE_GITHUB_PAGE_SLEEP_SECONDS`
+- AWS/ECR: `PROBABLYFINE_AWS_TIMEOUT_SECONDS`, `PROBABLYFINE_AWS_MAX_ATTEMPTS`, `PROBABLYFINE_AWS_RETRY_SLEEP_SECONDS`
+
 Large repo set control:
 - `--batch-size <n>` processes repos in bounded batches/queues (`0` disables batching).
 

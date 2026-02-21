@@ -79,3 +79,4 @@ Scanner writes per-repo run manifests to `.probablyfine/reports/<YYYY-MM-DD>/run
 
 PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
 PROBABLYFINE_DEPENDABOT_FILE=/path/to/dependabot.json PROBABLYFINE_ECR_FILE=/path/to/ecr_findings.json python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
+PROBABLYFINE_HTTP_MAX_ATTEMPTS=3 PROBABLYFINE_HTTP_TIMEOUT_SECONDS=20 PROBABLYFINE_AWS_MAX_ATTEMPTS=3 PROBABLYFINE_AWS_TIMEOUT_SECONDS=20 python3 scripts/probablyfine-triage/scanner.py /path/to/repo --offline
