@@ -33,6 +33,7 @@ This document defines the minimum deterministic contract for repositories proces
 - `context.json` MUST include `schema_version`.
 - `config.json` MUST include `schema_version`.
 - Current supported schema version is `0.1.0`.
+- Deterministic migration policy is defined in `contracts/schema-versioning.md`.
 
 ## Validation
 

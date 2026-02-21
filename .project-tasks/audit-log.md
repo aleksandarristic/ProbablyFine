@@ -31,6 +31,12 @@
 
 ## 2026-02-21
 
+- Completed `PF-004` config versioning strategy.
+- Added deterministic config schema-version gating in loader (`src/probablyfine/schema_versioning.py`) with explicit unsupported-version failure behavior.
+- Documented migration/versioning policy in `contracts/schema-versioning.md` and linked it from contract/README docs.
+- Added focused config-versioning test coverage (`tests/test_config_versioning.py`).
+- Updated `.project-tasks/backlog.md` status for `PF-004` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-004` in completed ahead-of-scope work.
 - Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
 - Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
 - Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.

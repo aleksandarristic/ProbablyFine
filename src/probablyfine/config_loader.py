@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from probablyfine.contracts import ValidationError, read_json, repo_root_from_module, validate_json_schema
+from probablyfine.schema_versioning import migrate_config_payload
 
 
 @dataclass(frozen=True)
@@ -93,6 +94,7 @@ def project_root_for_module(module_file: str) -> Path:
 def load_probablyfine_config(config_path: Path, project_root: Path) -> ProbablyFineConfig:
     payload = read_json(config_path)
     root = _require_dict("$", payload)
+    root = migrate_config_payload(root)
 
     schema = read_json(project_root / "contracts" / "schemas" / "config.schema.json")
     validate_json_schema(schema, root)

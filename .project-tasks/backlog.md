@@ -33,7 +33,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: schema includes ECR image locator and source settings.
 
 ### PF-004 Add config versioning strategy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-001
