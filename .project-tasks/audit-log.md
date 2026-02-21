@@ -56,6 +56,10 @@
 - Added deterministic scanner integration test (`tests/test_scanner_integration.py`) covering one-repo offline processing with fixture collector inputs and verification of emitted dated cache/report artifacts.
 - Updated `.project-tasks/backlog.md` status for `PF-081` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-081` in completed ahead-of-scope work.
+- Completed `PF-082` failure-mode tests.
+- Added deterministic tests (`tests/test_failure_modes.py`) covering missing `.probablyfine/config.json`, Dependabot auth failure (no token and no fallback), and bounded timeout/retry failure handling for Dependabot API calls.
+- Updated `.project-tasks/backlog.md` status for `PF-082` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-082` in completed ahead-of-scope work.
 - Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
 - Added JSON schemas:
   - `contracts/schemas/context.schema.json`

@@ -54,6 +54,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-032 deterministic retry/timeout/rate-limit controls
 - PF-080 unit tests for pipeline stages
 - PF-081 integration tests for full repo processing
+- PF-082 failure-mode tests
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

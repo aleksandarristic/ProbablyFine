@@ -257,7 +257,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: end-to-end run test creates expected cache/report tree.
 
 ### PF-082 Failure-mode tests
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-081
