@@ -58,3 +58,7 @@
 - Scanner now processes repos in deterministic batches while preserving per-repo result ordering.
 - Updated scanner docs/CLI references for batching mode.
 - Marked task `PF-071` as `DONE` and aligned current sprint tracking.
+- Implemented typed config loader in `src/probablyfine/config_loader.py` and integrated scanner validation path (`PF-021`).
+- Scanner now fails clearly when typed config load fails or deterministic mode is disabled.
+- Updated `README.md` reference for typed config loader.
+- Marked task `PF-021` as `DONE` and aligned current sprint tracking.

@@ -41,6 +41,8 @@ Formal contract and schemas:
 - `contracts/schemas/context.schema.json`
 - `contracts/schemas/config.schema.json`
 
+Typed config loader: `src/probablyfine/config_loader.py`
+
 Validate starter contract/schemas:
 
 ```bash

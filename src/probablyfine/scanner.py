@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 from probablyfine.contracts import repo_root_from_module, validate_probablyfine_contract
+from probablyfine.config_loader import ProbablyFineConfig, load_probablyfine_config
 
 
 def utc_now() -> dt.datetime:
@@ -131,6 +132,15 @@ def process_repo(
     errors = validate_probablyfine_contract(repo_path, project_root)
     if errors:
         return repo_path, False, "; ".join(errors)
+
+    config_path = repo_path / ".probablyfine" / "config.json"
+    try:
+        config: ProbablyFineConfig = load_probablyfine_config(config_path, project_root)
+    except Exception as exc:
+        return repo_path, False, f"{config_path}: typed config load failed: {exc}"
+
+    if not config.processing.deterministic_mode:
+        return repo_path, False, f"{config_path}: deterministic_mode must be true"
 
     ok, detail, manifest = run_pipeline_for_repo(repo_path, offline=offline, project_root=project_root, mode=mode)
     if manifest:

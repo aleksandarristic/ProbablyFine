@@ -107,7 +107,7 @@ Each task is a small, readable card with:
 - Acceptance criteria: scanner fails clearly when `.probablyfine` is missing or malformed.
 
 ### PF-021 Implement typed config loader
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-020
