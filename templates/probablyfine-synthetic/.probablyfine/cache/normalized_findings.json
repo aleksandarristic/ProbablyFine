@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-02-22T18:48:20.685998+00:00",
+  "inputs": {
+    "dependabot.json": "present",
+    "ecr_findings.json": "present"
+  },
+  "items": [
+    {
+      "cve": "CVE-2024-0001",
+      "cvss4_base_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:N",
+      "evidence_ids": [
+        "arn:aws:ecr:region:acct:finding/2001",
+        "db-1001"
+      ],
+      "fix_version": "3.0.12",
+      "package": "openssl",
+      "severity": "critical",
+      "source_bucket": "Both",
+      "sources": [
+        "Dependabot",
+        "ECR"
+      ]
+    },
+    {
+      "cve": "CVE-2024-0002",
+      "cvss4_base_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:L",
+      "evidence_ids": [
+        "db-1002"
+      ],
+      "fix_version": "2.32.4",
+      "package": "requests",
+      "severity": "high",
+      "source_bucket": "Dependabot-only",
+      "sources": [
+        "Dependabot"
+      ]
+    },
+    {
+      "cve": "CVE-2024-0003",
+      "cvss4_base_vector": null,
+      "evidence_ids": [
+        "db-1003"
+      ],
+      "fix_version": "8.3.4",
+      "package": "pytest",
+      "severity": "high",
+      "source_bucket": "Dependabot-only",
+      "sources": [
+        "Dependabot"
+      ]
+    },
+    {
+      "cve": "CVE-2024-0004",
+      "cvss4_base_vector": null,
+      "evidence_ids": [
+        "arn:aws:ecr:region:acct:finding/2002"
+      ],
+      "fix_version": "8.9.1",
+      "package": "curl",
+      "severity": "medium",
+      "source_bucket": "ECR-only",
+      "sources": [
+        "ECR"
+      ]
+    },
+    {
+      "cve": "CVE-2024-0005",
+      "cvss4_base_vector": null,
+      "evidence_ids": [
+        "db-1004"
+      ],
+      "fix_version": null,
+      "package": "nginx",
+      "severity": "medium",
+      "source_bucket": "Dependabot-only",
+      "sources": [
+        "Dependabot"
+      ]
+    }
+  ]
+}
