@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "findingArn": "arn:aws:ecr:region:acct:finding/2001",
+      "severity": "high",
+      "packageVulnerabilityDetails": {
+        "vulnerabilityId": "CVE-2024-0001",
+        "vulnerablePackages": [
+          {
+            "name": "openssl",
+            "fixedInVersion": "3.0.12"
+          }
+        ]
+      },
+      "cvss": [
+        {
+          "scoringVector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:N"
+        }
+      ]
+    },
+    {
+      "findingArn": "arn:aws:ecr:region:acct:finding/2002",
+      "severity": "medium",
+      "packageVulnerabilityDetails": {
+        "vulnerabilityId": "CVE-2024-0004",
+        "vulnerablePackages": [
+          {
+            "name": "curl",
+            "fixedInVersion": "8.9.1"
+          }
+        ]
+      }
+    }
+  ]
+}

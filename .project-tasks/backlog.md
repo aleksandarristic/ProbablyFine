@@ -299,3 +299,10 @@ Each task is a small, readable card with:
 - Type: DET
 - Depends on: PF-002, PF-042, PF-060
 - Acceptance criteria: context schema and creator support runtime-per-package mapping and ownership metadata, and env mapping consumes the runtime section.
+
+### PF-095 Synthetic triage fixture bundle
+- Status: DONE
+- Priority: P2
+- Type: DET
+- Depends on: PF-090, PF-091, PF-043
+- Acceptance criteria: repository includes a synthetic fixture bundle with Dependabot/ECR/context/threat-intel inputs and docs showing deterministic stage execution for exposure/runtime/threat ranking examples.

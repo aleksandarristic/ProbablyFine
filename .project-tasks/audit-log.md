@@ -190,3 +190,20 @@
 - Ran offline pipeline smoke test with local fixtures to verify stage artifacts are emitted (`normalized_findings.json`, `threat_intel.json`, `env_overrides.json`, report outputs).
 - Updated docs in `README.md` and skill-stage references for normalization output behavior.
 - Marked task `PF-040` as `DONE` and aligned sprint tracking.
+
+## 2026-02-22
+
+- Completed `PF-095` synthetic triage fixture bundle.
+- Added `templates/probablyfine-synthetic/` with deterministic synthetic inputs:
+  - `dependabot.json`
+  - `ecr_findings.json`
+  - `threat_intel.json`
+  - `.probablyfine/context_public.json`
+  - `.probablyfine/context_internal.json`
+- Added fixture usage docs in `templates/probablyfine-synthetic/README.md` and linked the bundle from root `README.md`.
+- Validated deterministic stage execution against synthetic fixture for public/internal context variants:
+  - normalize stage output
+  - env override stage output
+  - score/rank report output
+- Updated `.project-tasks/backlog.md` status for `PF-095` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-095` in completed ahead-of-scope work.

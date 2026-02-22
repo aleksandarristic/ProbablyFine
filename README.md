@@ -80,6 +80,10 @@ Template includes:
 - starter processing/source config (`config.json`)
 - sample report snapshots under `.probablyfine/reports/2026-02-16/`
 
+Synthetic triage fixture bundle:
+- `templates/probablyfine-synthetic/`
+- includes synthetic `dependabot.json`, `ecr_findings.json`, `threat_intel.json`, and paired public/internal context profiles for deterministic risk-model demonstrations
+
 ## Architecture (Current)
 
 Runtime pipeline stages:

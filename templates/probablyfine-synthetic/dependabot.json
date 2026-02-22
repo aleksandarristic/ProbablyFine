@@ -1,0 +1,95 @@
+{
+  "alerts": [
+    {
+      "id": "db-1001",
+      "dependency": {
+        "package": {
+          "name": "openssl"
+        }
+      },
+      "security_vulnerability": {
+        "severity": "critical",
+        "first_patched_version": {
+          "identifier": "3.0.13"
+        }
+      },
+      "security_advisory": {
+        "identifiers": [
+          {
+            "type": "CVE",
+            "value": "CVE-2024-0001"
+          }
+        ],
+        "cvss": {
+          "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H"
+        }
+      }
+    },
+    {
+      "id": "db-1002",
+      "dependency": {
+        "package": {
+          "name": "requests"
+        }
+      },
+      "security_vulnerability": {
+        "severity": "high",
+        "first_patched_version": {
+          "identifier": "2.32.4"
+        }
+      },
+      "security_advisory": {
+        "identifiers": [
+          {
+            "type": "CVE",
+            "value": "CVE-2024-0002"
+          }
+        ],
+        "cvss": {
+          "vector_string": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:L"
+        }
+      }
+    },
+    {
+      "id": "db-1003",
+      "dependency": {
+        "package": {
+          "name": "pytest"
+        }
+      },
+      "security_vulnerability": {
+        "severity": "high",
+        "first_patched_version": {
+          "identifier": "8.3.4"
+        }
+      },
+      "security_advisory": {
+        "identifiers": [
+          {
+            "type": "CVE",
+            "value": "CVE-2024-0003"
+          }
+        ]
+      }
+    },
+    {
+      "id": "db-1004",
+      "dependency": {
+        "package": {
+          "name": "nginx"
+        }
+      },
+      "security_vulnerability": {
+        "severity": "medium"
+      },
+      "security_advisory": {
+        "identifiers": [
+          {
+            "type": "CVE",
+            "value": "CVE-2024-0005"
+          }
+        ]
+      }
+    }
+  ]
+}

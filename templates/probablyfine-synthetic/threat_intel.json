@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-02-22T00:00:00+00:00",
+  "sources": {
+    "epss": "synthetic-fixture",
+    "kev": "synthetic-fixture"
+  },
+  "items": [
+    {
+      "cve": "CVE-2024-0001",
+      "epss_probability": 0.10,
+      "epss_percentile": 0.11,
+      "cisa_kev_listed": true,
+      "kev_date_added": "2025-01-10",
+      "kev_due_date": "2025-01-31"
+    },
+    {
+      "cve": "CVE-2024-0002",
+      "epss_probability": 0.80,
+      "epss_percentile": 0.90,
+      "cisa_kev_listed": false,
+      "kev_date_added": null,
+      "kev_due_date": null
+    },
+    {
+      "cve": "CVE-2024-0003",
+      "epss_probability": 0.35,
+      "epss_percentile": 0.66,
+      "cisa_kev_listed": false,
+      "kev_date_added": null,
+      "kev_due_date": null
+    },
+    {
+      "cve": "CVE-2024-0004",
+      "epss_probability": 0.05,
+      "epss_percentile": 0.20,
+      "cisa_kev_listed": false,
+      "kev_date_added": null,
+      "kev_due_date": null
+    }
+  ]
+}
