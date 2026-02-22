@@ -1,0 +1,9 @@
+{
+  "fetch_status": "fallback-empty",
+  "generated_at": "2026-02-22T18:44:36.472151+00:00",
+  "items": [],
+  "sources": {
+    "epss": "https://api.first.org/data/v1/epss",
+    "kev": "https://github.com/cisagov/kev-data"
+  }
+}
