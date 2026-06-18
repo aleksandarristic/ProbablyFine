@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from pipeline_common import (
     build_threat_cache,
@@ -20,6 +20,16 @@ from pipeline_common import (
 )
 from fetch_threat_intel import empty_cache
 from score_and_rank import run_scoring
+
+
+def _find_latest_report(reports_root: Path) -> Optional[List[Dict[str, Any]]]:
+    candidates = sorted(reports_root.glob("*/report-*.json"))
+    if not candidates:
+        return None
+    data = read_json(candidates[-1])
+    if isinstance(data, dict) and isinstance(data.get("findings"), list):
+        return data["findings"]
+    return None
 
 
 def _stage_normalize(dependabot_path: Optional[Path], ecr_path: Optional[Path]) -> Dict[str, Any]:
@@ -70,6 +80,8 @@ def _run(
     output_json: Path,
     offline: bool,
     reuse_threat_cache: bool,
+    weights: Optional[Dict[str, float]] = None,
+    previous_findings: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     normalized = _stage_normalize(dependabot_path, ecr_path)
     write_json(normalized_out, normalized)
@@ -90,6 +102,8 @@ def _run(
         output_md=output_md,
         output_json=output_json,
         intel_fetch_performed=intel_fetch_performed,
+        weights=weights,
+        previous_findings=previous_findings,
     )
 
 
@@ -123,6 +137,16 @@ def main() -> int:
         cache_dir.mkdir(parents=True, exist_ok=True)
         reports_dir.mkdir(parents=True, exist_ok=True)
         timestamp = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H%M%SZ")
+
+        config = read_json(pf / "config.json") if (pf / "config.json").exists() else {}
+        weights: Optional[Dict[str, float]] = None
+        if isinstance(config, dict):
+            proc = config.get("processing", {})
+            if isinstance(proc, dict) and isinstance(proc.get("scoring_weights"), dict):
+                weights = proc["scoring_weights"]
+
+        previous_findings = _find_latest_report(reports_dir.parent) if reports_dir.parent.exists() else None
+
         _run(
             dependabot_path=None,
             ecr_path=None,
@@ -134,6 +158,8 @@ def main() -> int:
             output_json=reports_dir / f"report-{timestamp}.json",
             offline=args.offline,
             reuse_threat_cache=True,
+            weights=weights,
+            previous_findings=previous_findings,
         )
     else:
         _run(

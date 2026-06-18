@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import argparse
-import subprocess
-import sys
 from pathlib import Path
+
+from triage_pipeline import _run
 
 
 def main() -> int:
@@ -19,25 +19,18 @@ def main() -> int:
     parser.add_argument("--offline", action="store_true", help="Do not fetch EPSS/KEV")
     args = parser.parse_args()
 
-    scripts_dir = Path(__file__).resolve().parent
-    cmd = [
-        sys.executable,
-        str(scripts_dir / "triage_pipeline.py"),
-        "--dependabot",
-        str(args.dependabot),
-        "--ecr",
-        str(args.ecr),
-        "--context",
-        str(args.context),
-        "--threat-intel",
-        str(args.threat_intel),
-        "--output-md",
-        str(args.output),
-    ]
-    if args.offline:
-        cmd.append("--offline")
-
-    subprocess.run(cmd, check=True)
+    _run(
+        dependabot_path=args.dependabot,
+        ecr_path=args.ecr,
+        context_path=args.context,
+        normalized_out=Path("normalized_findings.json"),
+        threat_intel_out=args.threat_intel,
+        env_overrides_out=Path("env_overrides.json"),
+        output_md=args.output,
+        output_json=args.output.with_suffix(".json"),
+        offline=args.offline,
+        reuse_threat_cache=False,
+    )
     return 0
 
 

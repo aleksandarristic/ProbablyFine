@@ -42,6 +42,15 @@ _SEVERITY_ALIASES = {
 THREAT_SUB = {"A": 1.00, "F": 0.75, "P": 0.50, "U": 0.25, "X": 0.10}
 RUNTIME_SUB = {"runtime": 1.00, "unknown": 0.70, "build-only": 0.30}
 
+SCORE_WEIGHTS = {
+    "severity": 0.30,
+    "threat": 0.25,
+    "exposure": 0.15,
+    "impact": 0.15,
+    "runtime": 0.10,
+    "fixability": 0.05,
+}
+
 
 @dataclass
 class InputFinding:

@@ -5,10 +5,11 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from pipeline_common import (
     RUNTIME_RANK,
+    SCORE_WEIGHTS,
     SEVERITY_RANK,
     SEVERITY_SUB,
     SOURCE_RANK,
@@ -43,6 +44,22 @@ def env_from_overrides(payload: Any) -> Dict[str, str]:
     }
 
 
+def _compute_delta(
+    current: List[Dict[str, Any]],
+    previous: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    prev_index = {(f["cve"], f["package"]): f for f in previous if isinstance(f, dict)}
+    curr_keys = {(f["cve"], f["package"]) for f in current}
+    new = [f for f in current if (f["cve"], f["package"]) not in prev_index]
+    resolved = [f for f in previous if isinstance(f, dict) and (f["cve"], f["package"]) not in curr_keys]
+    changed = []
+    for f in current:
+        prev = prev_index.get((f["cve"], f["package"]))
+        if prev and (f["severity"] != prev.get("severity") or f["risk"] != prev.get("risk")):
+            changed.append({"current": f, "previous": prev})
+    return {"new": new, "resolved": resolved, "changed": changed}
+
+
 def run_scoring(
     normalized: Any,
     threat: Any,
@@ -50,6 +67,8 @@ def run_scoring(
     output_md: Path,
     output_json: Path,
     intel_fetch_performed: str,
+    weights: Optional[Dict[str, float]] = None,
+    previous_findings: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     items = normalized.get("items", []) if isinstance(normalized, dict) else []
     intel_index = build_intel_index(threat)
@@ -90,13 +109,14 @@ def run_scoring(
         fix_version = item.get("fix_version") if isinstance(item.get("fix_version"), str) else None
         fix_sub = 1.00 if fix_version else 0.60
 
+        w = {**SCORE_WEIGHTS, **(weights or {})}
         risk_raw = 100 * (
-            0.30 * sev_sub
-            + 0.25 * thr_sub
-            + 0.15 * exp_sub
-            + 0.15 * imp_sub
-            + 0.10 * run_sub
-            + 0.05 * fix_sub
+            w["severity"] * sev_sub
+            + w["threat"] * thr_sub
+            + w["exposure"] * exp_sub
+            + w["impact"] * imp_sub
+            + w["runtime"] * run_sub
+            + w["fixability"] * fix_sub
         )
         risk_score = max(0, min(100, int(round(risk_raw))))
         severity_counts[severity] += 1
@@ -139,6 +159,7 @@ def run_scoring(
         scored_rows.append(row)
 
     scored_rows.sort(key=lambda row: row["sort"])
+    output_rows = [{k: v for k, v in row.items() if k != "sort"} for row in scored_rows]
 
     unknowns: List[str] = []
     if normalized is None:
@@ -236,22 +257,50 @@ def run_scoring(
         f.write("- Threat mapping used only EPSS/KEV: yes\n")
         f.write("- RiskScore computed per formula: yes\n")
 
-    write_json(
-        output_json,
-        {
-            "summary": {
-                "total": len(scored_rows),
-                "severity_counts": severity_counts,
-                "threat_counts": e_counts,
-                "source_counts": source_counts,
-            },
-            "findings": [
-                {k: v for k, v in row.items() if k not in {"sort"}} for row in scored_rows
-            ],
-        },
-    )
+        if previous_findings is not None:
+            delta = _compute_delta(output_rows, previous_findings)
+            f.write(
+                f"\n## Delta vs Previous Run\n\n"
+                f"New: {len(delta['new'])}, "
+                f"Resolved: {len(delta['resolved'])}, "
+                f"Changed: {len(delta['changed'])}\n\n"
+            )
+            if delta["new"]:
+                f.write("### New\n| CVE | Package | Severity | Risk |\n|---|---|---|---:|\n")
+                for row in delta["new"]:
+                    f.write(f"| {markdown_escape(row['cve'])} | {markdown_escape(row['package'])} | {row['severity'].capitalize()} | {row['risk']} |\n")
+                f.write("\n")
+            if delta["resolved"]:
+                f.write("### Resolved\n| CVE | Package | Severity | Risk |\n|---|---|---|---:|\n")
+                for row in delta["resolved"]:
+                    sev = row.get("severity", "unknown")
+                    f.write(f"| {markdown_escape(row['cve'])} | {markdown_escape(row['package'])} | {sev.capitalize()} | {row.get('risk', '?')} |\n")
+                f.write("\n")
+            if delta["changed"]:
+                f.write("### Changed\n| CVE | Package | Severity | Risk |\n|---|---|---|---:|\n")
+                for entry in delta["changed"]:
+                    cur, prev = entry["current"], entry["previous"]
+                    sev = cur["severity"].capitalize()
+                    if cur["severity"] != prev.get("severity"):
+                        sev = f"{prev.get('severity', '?').capitalize()} → {sev}"
+                    risk = str(cur["risk"])
+                    if cur["risk"] != prev.get("risk"):
+                        risk = f"{prev.get('risk', '?')} → {risk}"
+                    f.write(f"| {markdown_escape(cur['cve'])} | {markdown_escape(cur['package'])} | {sev} | {risk} |\n")
+                f.write("\n")
 
-    return 0
+    report: Dict[str, Any] = {
+        "summary": {
+            "total": len(scored_rows),
+            "severity_counts": severity_counts,
+            "threat_counts": e_counts,
+            "source_counts": source_counts,
+        },
+        "findings": output_rows,
+    }
+    if previous_findings is not None:
+        report["delta"] = delta
+    write_json(output_json, report)
 
 
 def main() -> int:
