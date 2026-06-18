@@ -253,3 +253,10 @@
 
 - Completed `PF-100`.
 - Removed the duplicate `exposure_sub` implementation from `score_and_rank.py`; scoring now uses the shared helper imported from `pipeline_common.py`.
+
+## 2026-06-18
+
+- Completed `PF-101`.
+- `build_threat_cache` now includes `fetch_status: "ok"` in successful threat intel cache payloads.
+- Removed the caller-side `fetch_status` patch from `fetch_threat_intel.py`.
+- Added a builder unit test with mocked EPSS/KEV calls and updated the threat intel JSON contract reference.

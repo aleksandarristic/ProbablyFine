@@ -443,6 +443,7 @@ def build_threat_cache(cves: Sequence[str]) -> Dict[str, Any]:
     return {
         "generated_at": utc_now_iso(),
         "sources": {"epss": EPSS_URL, "kev": KEV_REPO_URL},
+        "fetch_status": "ok",
         "items": items,
     }
 

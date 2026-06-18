@@ -80,6 +80,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-098 unsupported CVSS versions now render `final_vector` as `unknown` instead of composing malformed vectors.
 - PF-099 optional adjustment now runs from the orchestrator when enabled by config or explicit output arguments.
 - PF-100 `score_and_rank.py` now uses the shared `pipeline_common.exposure_sub` helper.
+- PF-101 `build_threat_cache` now returns `fetch_status: ok` directly.
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

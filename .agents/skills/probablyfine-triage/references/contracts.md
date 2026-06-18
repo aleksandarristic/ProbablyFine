@@ -46,6 +46,7 @@ Context schema supports runtime mapping and metadata extensions:
     "epss": "https://api.first.org/data/v1/epss",
     "kev": "https://github.com/cisagov/kev-data"
   },
+  "fetch_status": "ok|fallback-empty",
   "items": [
     {
       "cve": "CVE-YYYY-NNNN",

@@ -350,7 +350,7 @@ Each task is a small, readable card with:
 - Notes: `score_and_rank.py:66-73` redefines `exposure_sub` identically to `pipeline_common.py:687-693`, shadowing the import at line 22.
 
 ### PF-101 Add `fetch_status` to `build_threat_cache` return value
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: DET
 - Depends on: PF-041

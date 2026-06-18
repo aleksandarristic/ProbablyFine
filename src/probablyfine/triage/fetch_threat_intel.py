@@ -52,8 +52,6 @@ def main() -> int:
 
     try:
         cache = build_threat_cache(cves)
-        if isinstance(cache, dict):
-            cache["fetch_status"] = "ok"
     except Exception as exc:
         print(f"warning: threat intel fetch failed, using empty cache: {exc}", file=sys.stderr)
         cache = empty_cache(cves)

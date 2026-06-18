@@ -7,10 +7,32 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from probablyfine.triage import fetch_threat_intel
+from probablyfine.triage import fetch_threat_intel, pipeline_common
 
 
 class FetchThreatIntelTests(unittest.TestCase):
+    def test_build_threat_cache_sets_ok_fetch_status(self) -> None:
+        with mock.patch.object(
+            pipeline_common,
+            "fetch_epss",
+            return_value={
+                "CVE-2024-1111": {
+                    "epss_probability": 0.5,
+                    "epss_percentile": 0.9,
+                    "epss_timestamp": "2026-06-18",
+                }
+            },
+        ):
+            with mock.patch.object(
+                pipeline_common,
+                "fetch_kev",
+                return_value={"CVE-2024-1111": {"cisa_kev_listed": True}},
+            ):
+                payload = pipeline_common.build_threat_cache(["CVE-2024-1111"])
+
+        self.assertEqual(payload["fetch_status"], "ok")
+        self.assertEqual(payload["items"][0]["cve"], "CVE-2024-1111")
+
     def test_offline_emits_deterministic_empty_cache(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
