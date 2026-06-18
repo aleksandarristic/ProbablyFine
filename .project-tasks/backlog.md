@@ -342,7 +342,7 @@ Each task is a small, readable card with:
 - Notes: `optional_adjustment.py` has a complete implementation but `triage_pipeline.py` never calls it. `PF-044` is marked DONE in backlog but the orchestrator integration was not completed.
 
 ### PF-100 Remove duplicate `exposure_sub` from `score_and_rank.py`
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: DET
 - Depends on: none

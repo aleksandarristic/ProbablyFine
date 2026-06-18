@@ -63,15 +63,6 @@ def env_from_overrides(payload: Any) -> Dict[str, str]:
     }
 
 
-def exposure_sub(mav: str) -> float:
-    return {
-        "MAV:N": 1.00,
-        "MAV:A": 0.60,
-        "MAV:L": 0.30,
-        "MAV:X": 0.50,
-    }.get(mav, 0.50)
-
-
 def run_scoring(
     normalized: Any,
     threat: Any,

@@ -248,3 +248,8 @@
 - `--repo-root` now checks `.probablyfine/config.json` `processing.allow_llm_adjustment`; enabled configs write `report-<timestamp>-llm-adjustment.json`, while disabled configs skip the stage.
 - Added explicit `--llm-adjustment-output` and `--enable-llm-adjustment` pipeline arguments for scanner compatibility.
 - Added repo-root tests for both skipped and emitted optional adjustment artifacts, and updated README plus triage stage docs.
+
+## 2026-06-18
+
+- Completed `PF-100`.
+- Removed the duplicate `exposure_sub` implementation from `score_and_rank.py`; scoring now uses the shared helper imported from `pipeline_common.py`.
