@@ -1,0 +1,111 @@
+{
+  "findings": [
+    {
+      "base_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:N",
+      "crirar": "CR:H/IR:M/AR:M",
+      "cve": "CVE-2024-0001",
+      "e": "A",
+      "evidence": "arn:aws:ecr:region:acct:finding/2001, db-1001",
+      "final_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:N/E:A/CR:H/IR:M/AR:M/MAV:N/MPR:L",
+      "fix_version": "3.0.12",
+      "mav": "MAV:N",
+      "package": "openssl",
+      "recommended_action": "Upgrade openssl to 3.0.12",
+      "risk": 100,
+      "runtime": "runtime",
+      "score_breakdown": "S=1,T=1,X=1,I=1,R=1,F=1",
+      "severity": "critical",
+      "source_bucket": "Both"
+    },
+    {
+      "base_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:L",
+      "crirar": "CR:H/IR:M/AR:M",
+      "cve": "CVE-2024-0002",
+      "e": "F",
+      "evidence": "db-1002",
+      "final_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:L/E:F/CR:H/IR:M/AR:M/MAV:N/MPR:L",
+      "fix_version": "2.32.4",
+      "mav": "MAV:N",
+      "package": "requests",
+      "recommended_action": "Upgrade requests to 2.32.4",
+      "risk": 86,
+      "runtime": "runtime",
+      "score_breakdown": "S=0.75,T=0.75,X=1,I=1,R=1,F=1",
+      "severity": "high",
+      "source_bucket": "Dependabot-only"
+    },
+    {
+      "base_vector": "unknown",
+      "crirar": "CR:H/IR:M/AR:M",
+      "cve": "CVE-2024-0003",
+      "e": "P",
+      "evidence": "db-1003",
+      "final_vector": "unknown",
+      "fix_version": "8.3.4",
+      "mav": "MAV:N",
+      "package": "pytest",
+      "recommended_action": "Upgrade pytest to 8.3.4",
+      "risk": 73,
+      "runtime": "build-only",
+      "score_breakdown": "S=0.75,T=0.5,X=1,I=1,R=0.3,F=1",
+      "severity": "high",
+      "source_bucket": "Dependabot-only"
+    },
+    {
+      "base_vector": "unknown",
+      "crirar": "CR:H/IR:M/AR:M",
+      "cve": "CVE-2024-0004",
+      "e": "U",
+      "evidence": "arn:aws:ecr:region:acct:finding/2002",
+      "final_vector": "unknown",
+      "fix_version": "8.9.1",
+      "mav": "MAV:N",
+      "package": "curl",
+      "recommended_action": "Upgrade curl to 8.9.1",
+      "risk": 66,
+      "runtime": "runtime",
+      "score_breakdown": "S=0.5,T=0.25,X=1,I=1,R=1,F=1",
+      "severity": "medium",
+      "source_bucket": "ECR-only"
+    },
+    {
+      "base_vector": "unknown",
+      "crirar": "CR:H/IR:M/AR:M",
+      "cve": "CVE-2024-0005",
+      "e": "X",
+      "evidence": "db-1004",
+      "final_vector": "unknown",
+      "fix_version": "unknown",
+      "mav": "MAV:N",
+      "package": "nginx",
+      "recommended_action": "Upgrade nginx; fixed version unknown in input",
+      "risk": 57,
+      "runtime": "unknown",
+      "score_breakdown": "S=0.5,T=0.1,X=1,I=1,R=0.7,F=0.6",
+      "severity": "medium",
+      "source_bucket": "Dependabot-only"
+    }
+  ],
+  "summary": {
+    "severity_counts": {
+      "critical": 1,
+      "high": 2,
+      "low": 0,
+      "medium": 2,
+      "unknown": 0
+    },
+    "source_counts": {
+      "Both": 1,
+      "Dependabot-only": 3,
+      "ECR-only": 1
+    },
+    "threat_counts": {
+      "A": 1,
+      "F": 1,
+      "P": 1,
+      "U": 1,
+      "X": 1
+    },
+    "total": 5
+  }
+}

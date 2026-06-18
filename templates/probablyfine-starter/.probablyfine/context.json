@@ -64,5 +64,19 @@
     "egress_restricted": "unknown",
     "pod_security": "unknown",
     "network_policy_enforced": "unknown"
+  },
+  "runtime": {
+    "presence_default": "unknown",
+    "presence_by_package": [
+      {
+        "package": "requests",
+        "presence": "runtime"
+      }
+    ]
+  },
+  "metadata": {
+    "owner_team": "platform-security",
+    "service_tier": "tier-2",
+    "last_reviewed": "2026-02-21"
   }
 }

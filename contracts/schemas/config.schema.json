@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probablyfine.local/schemas/config.schema.json",
+  "title": "ProbablyFine Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "component_name", "sources", "processing"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "component_name": {"type": "string", "minLength": 1},
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github", "aws"],
+      "properties": {
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["dependabot"],
+          "properties": {
+            "dependabot": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["enabled", "repository", "api_base"],
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "repository": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+                "api_base": {"type": "string", "format": "uri"}
+              }
+            }
+          }
+        },
+        "aws": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ecr"],
+          "properties": {
+            "ecr": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["enabled", "region", "registry_id", "repository", "image", "image_uri"],
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "region": {"type": "string", "minLength": 1},
+                "registry_id": {"type": "string", "pattern": "^[0-9]{12}$"},
+                "repository": {"type": "string", "minLength": 1},
+                "image": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["type", "value"],
+                  "properties": {
+                    "type": {"type": "string", "enum": ["tag", "digest"]},
+                    "value": {"type": "string", "minLength": 1}
+                  }
+                },
+                "image_uri": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        }
+      }
+    },
+    "processing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deterministic_mode", "allow_llm_adjustment", "cache_root", "report_root"],
+      "properties": {
+        "deterministic_mode": {"type": "boolean"},
+        "allow_llm_adjustment": {"type": "boolean"},
+        "cache_root": {"type": "string", "const": ".probablyfine/cache"},
+        "report_root": {"type": "string", "const": ".probablyfine/reports"}
+      }
+    }
+  }
+}

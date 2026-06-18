@@ -12,42 +12,42 @@ Each task is a small, readable card with:
 ## Contracts And Boundaries
 
 ### PF-001 Define `.probablyfine/` contract and required files
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: none
 - Acceptance criteria: spec document exists for `.probablyfine/context.json`, `.probablyfine/config.json`, `.probablyfine/cache/`, `.probablyfine/reports/`.
 
 ### PF-002 Define JSON schema for environment context
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-001
 - Acceptance criteria: JSON schema validates the provided context example structure and required keys.
 
 ### PF-003 Define JSON schema for repo processing config
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-001
 - Acceptance criteria: schema includes ECR image locator and source settings.
 
 ### PF-004 Add config versioning strategy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-001
 - Acceptance criteria: all config files include `schema_version`; migration behavior documented.
 
 ### PF-005 Define deterministic/LLM boundary policy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-001
 - Acceptance criteria: written policy lists strict deterministic stages and allowed Codex/LLM stages.
 
 ### PF-006 Define cache/report retention policy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-001
@@ -56,42 +56,42 @@ Each task is a small, readable card with:
 ## Scanner Wrapper And Orchestration
 
 ### PF-010 Build multi-repo scanner CLI wrapper
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-001
 - Acceptance criteria: CLI accepts list of repo paths and runs processing per repo.
 
 ### PF-011 Add sequential and parallel modes
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-010
 - Acceptance criteria: `--mode sequential|parallel` works; parallel worker count is configurable.
 
 ### PF-012 Add resilient run orchestration
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010
 - Acceptance criteria: one repo failure does not crash whole run; final summary includes per-repo status.
 
 ### PF-013 Add per-repo run manifest
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010
 - Acceptance criteria: manifest links run ID, start/end times, inputs, and output paths.
 
 ### PF-070 Repo list ingestion from file
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010
 - Acceptance criteria: scanner accepts newline-delimited repo list file in addition to CLI args.
 
 ### PF-071 Repo batching and queueing
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: DET
 - Depends on: PF-011
@@ -100,21 +100,21 @@ Each task is a small, readable card with:
 ## Repo Discovery And Config Loading
 
 ### PF-020 Implement `.probablyfine` discovery and validation
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-003
 - Acceptance criteria: scanner fails clearly when `.probablyfine` is missing or malformed.
 
 ### PF-021 Implement typed config loader
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-020
 - Acceptance criteria: config loader returns validated typed model objects.
 
 ### PF-022 Resolve ECR image reference from config
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-020
@@ -123,28 +123,28 @@ Each task is a small, readable card with:
 ## Data Collection
 
 ### PF-030 Dependabot collector (GitHub API)
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-020
 - Acceptance criteria: raw Dependabot payload is fetched and cached with timestamped filename.
 
 ### PF-031 ECR collector (AWS API)
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-022
 - Acceptance criteria: ECR findings are fetched using configured image and cached as raw JSON.
 
 ### PF-032 Deterministic retry/timeout/rate-limit controls
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-030, PF-031
 - Acceptance criteria: collectors implement bounded retries and configurable timeouts.
 
 ### PF-033 Data source authentication strategy
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-030, PF-031
@@ -153,42 +153,42 @@ Each task is a small, readable card with:
 ## Processing Pipeline
 
 ### PF-040 Normalize and dedupe stage
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-030, PF-031
 - Acceptance criteria: outputs deterministic `normalized_findings.json` with stable ordering.
 
 ### PF-041 Threat intel stage (EPSS/KEV)
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-040
 - Acceptance criteria: CVEs are enriched from allowed sources only and cached in `threat_intel.json`.
 
 ### PF-042 Context mapping stage for CVSS environmental metrics
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-002
 - Acceptance criteria: outputs deterministic `env_overrides.json` from context file.
 
 ### PF-043 Deterministic scoring and ranking stage
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-040, PF-041, PF-042
 - Acceptance criteria: produces stable score/rank output for identical inputs.
 
 ### PF-044 Optional Codex-assisted adjustment stage
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: LLM
 - Depends on: PF-043
 - Acceptance criteria: feature-flagged stage emits rationale/annotations without mutating deterministic base score unless explicitly enabled.
 
 ### PF-045 Determinism verification harness
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-043
@@ -197,21 +197,21 @@ Each task is a small, readable card with:
 ## Reporting And Audit Trail
 
 ### PF-050 Report generation and dated output structure
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-043
 - Acceptance criteria: reports are written under `.probablyfine/reports/<date>/report-<timestamp>.*`.
 
 ### PF-051 Cache audit trail writer
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-030, PF-031, PF-041
 - Acceptance criteria: all fetched payloads are written under `.probablyfine/cache/<date>/` with metadata.
 
 ### PF-052 Run index generation
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-050, PF-051
@@ -227,14 +227,14 @@ Each task is a small, readable card with:
 - Acceptance criteria: interactive CLI creates valid `.probablyfine/context.json`.
 
 ### PF-061 Codex-guided context authoring mode
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: LLM
 - Depends on: PF-060
 - Acceptance criteria: script can launch guided question flow compatible with Codex usage.
 
 ### PF-062 Context drift checker
-- Status: TODO
+- Status: DONE
 - Priority: P2
 - Type: DET
 - Depends on: PF-060
@@ -243,21 +243,21 @@ Each task is a small, readable card with:
 ## Testing
 
 ### PF-080 Unit tests for pipeline stages
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-040, PF-041, PF-043
 - Acceptance criteria: stage tests exist with fixtures and deterministic assertions.
 
 ### PF-081 Integration tests for full repo processing
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-010, PF-030, PF-031
 - Acceptance criteria: end-to-end run test creates expected cache/report tree.
 
 ### PF-082 Failure-mode tests
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-081
@@ -266,7 +266,7 @@ Each task is a small, readable card with:
 ## Documentation
 
 ### PF-090 Documentation and onboarding
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-050
@@ -278,3 +278,31 @@ Each task is a small, readable card with:
 - Type: DET
 - Depends on: PF-090
 - Acceptance criteria: includes sample context/config files and expected report snapshots.
+
+### PF-092 Python packaging and app layout
+- Status: DONE
+- Priority: P1
+- Type: DET
+- Depends on: none
+- Acceptance criteria: repository includes `src/` package layout, `pyproject.toml`, requirements files, and CLI entry points with script-wrapper compatibility.
+
+### PF-093 Runtime architecture docs refresh
+- Status: DONE
+- Priority: P2
+- Type: DET
+- Depends on: PF-043, PF-050, PF-090
+- Acceptance criteria: README includes an explicit end-to-end runtime flow and code map for core modules/utilities.
+
+### PF-094 Context model depth expansion
+- Status: DONE
+- Priority: P1
+- Type: DET
+- Depends on: PF-002, PF-042, PF-060
+- Acceptance criteria: context schema and creator support runtime-per-package mapping and ownership metadata, and env mapping consumes the runtime section.
+
+### PF-095 Synthetic triage fixture bundle
+- Status: DONE
+- Priority: P2
+- Type: DET
+- Depends on: PF-090, PF-091, PF-043
+- Acceptance criteria: repository includes a synthetic fixture bundle with Dependabot/ECR/context/threat-intel inputs and docs showing deterministic stage execution for exposure/runtime/threat ranking examples.

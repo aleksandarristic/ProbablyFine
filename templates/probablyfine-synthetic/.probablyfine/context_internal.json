@@ -1,0 +1,76 @@
+{
+  "schema_version": "0.1.0",
+  "component": {
+    "name": "synthetic-demo",
+    "type": "service",
+    "runtime": "container",
+    "orchestrator": "kubernetes",
+    "cloud": "aws",
+    "platform": "eks",
+    "namespace": "prod",
+    "exposure": "internal"
+  },
+  "network": {
+    "internet_ingress": {
+      "public_entrypoint": false,
+      "unrestricted": false,
+      "fronted_by": [],
+      "authn": "required",
+      "authz": "required",
+      "rate_limited": true,
+      "waf": "unknown",
+      "mTLS": true
+    },
+    "service_reachability": {
+      "reachable_from_internet_directly": false,
+      "reachable_via_public_ingress": false,
+      "reachable_from_same_vpc": true,
+      "reachable_only_from_cluster": false
+    },
+    "default_deny": true
+  },
+  "auth_boundary": {
+    "internet_to_ingress": "strong",
+    "ingress_to_service": "strong",
+    "service_requires_auth": true,
+    "auth_type": [
+      "oidc"
+    ],
+    "privilege_required": "user"
+  },
+  "data": {
+    "confidentiality_requirement": "high",
+    "integrity_requirement": "medium",
+    "availability_requirement": "medium"
+  },
+  "controls": {
+    "reverse_proxy_hardened": true,
+    "network_policy_enforced": true
+  },
+  "runtime": {
+    "presence_default": "unknown",
+    "presence_by_package": [
+      {
+        "package": "openssl",
+        "presence": "runtime"
+      },
+      {
+        "package": "requests",
+        "presence": "runtime"
+      },
+      {
+        "package": "pytest",
+        "presence": "build-only"
+      },
+      {
+        "package": "curl",
+        "presence": "runtime"
+      }
+    ]
+  },
+  "metadata": {
+    "owner_team": "security-engineering",
+    "service_tier": "tier-1",
+    "last_reviewed": "2026-02-22"
+  }
+}

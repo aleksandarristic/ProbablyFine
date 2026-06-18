@@ -22,3 +22,188 @@
 - Added utility usage docs to `scripts/probablyfine-triage/README.md` and root `README.md`.
 - Marked task `PF-060` as `DONE` in `.project-tasks/backlog.md`.
 - Updated `.project-tasks/current-sprint.md` to note `PF-060` as completed ahead of original scope.
+- Repackaged runtime code into `src/probablyfine/triage/` and added Python packaging metadata in `pyproject.toml`.
+- Added `requirements.txt` and `requirements-dev.txt`.
+- Added console entry points: `probablyfine-triage`, `probablyfine-triage-legacy`, and `probablyfine-context`.
+- Converted files in `scripts/probablyfine-triage/` into compatibility wrappers to preserve script-based execution.
+- Updated docs for package-first usage and install/run commands.
+- Marked task `PF-092` as `DONE` and aligned current sprint notes.
+
+## 2026-02-21
+
+- Completed `PF-094` context model depth expansion.
+- Extended context schema with runtime mapping and metadata sections:
+  - `runtime.presence_default`
+  - `runtime.presence_by_package[]`
+  - `metadata.owner_team`, `metadata.service_tier`, `metadata.last_reviewed`
+- Updated starter context template and context creator to capture new fields in interactive and codex-guided flows.
+- Updated environment override mapping to consume new runtime section while preserving legacy fallback behavior.
+- Added/updated tests for runtime mapping behavior in context override stage.
+- Updated user/stage docs for the expanded context model.
+- Updated `.project-tasks/backlog.md` status for `PF-094` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-094` in completed ahead-of-scope work.
+- Completed `PF-093` runtime architecture docs refresh.
+- Updated `README.md` with current architecture, end-to-end runtime flow, deterministic guarantees, and a concrete code map of core modules/utilities.
+- Updated `.project-tasks/backlog.md` status for `PF-093` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-093` in completed ahead-of-scope work.
+- Completed `PF-004` config versioning strategy.
+- Added deterministic config schema-version gating in loader (`src/probablyfine/schema_versioning.py`) with explicit unsupported-version failure behavior.
+- Documented migration/versioning policy in `contracts/schema-versioning.md` and linked it from contract/README docs.
+- Added focused config-versioning test coverage (`tests/test_config_versioning.py`).
+- Updated `.project-tasks/backlog.md` status for `PF-004` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-004` in completed ahead-of-scope work.
+- Completed `PF-005` deterministic/LLM boundary policy.
+- Added explicit boundary policy at `contracts/deterministic-llm-boundary.md` defining deterministic-only stages, allowed optional LLM stage constraints, and prohibited LLM behavior.
+- Linked policy in `README.md` and resolved open question `Q-001` in `.project-tasks/open-questions.md`.
+- Updated `.project-tasks/backlog.md` status for `PF-005` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-005` in completed ahead-of-scope work.
+- Completed `PF-006` cache/report retention policy.
+- Added retention policy document (`contracts/retention-policy.md`) and deterministic cleanup utility (`src/probablyfine/retention.py`) with dry-run and apply modes.
+- Added retention compatibility wrapper and CLI entry point (`probablyfine-retention`) plus test coverage (`tests/test_retention.py`).
+- Updated README and script docs with retention command usage.
+- Resolved open question `Q-003` in `.project-tasks/open-questions.md`.
+- Updated `.project-tasks/backlog.md` status for `PF-006` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-006` in completed ahead-of-scope work.
+- Completed `PF-045` determinism verification harness.
+- Added pipeline determinism harness (`src/probablyfine/triage/verify_determinism.py`) and compatibility wrapper to run repeated offline pipeline executions and byte-compare outputs.
+- Added fixed timestamp injection support via `PROBABLYFINE_FIXED_UTC_NOW` for byte-stable artifact generation during deterministic verification.
+- Added harness test coverage (`tests/test_verify_determinism.py`) and CLI entry point (`probablyfine-verify-determinism`).
+- Updated docs with determinism harness usage.
+- Updated `.project-tasks/backlog.md` status for `PF-045` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-045` in completed ahead-of-scope work.
+- Completed `PF-044` optional Codex-assisted adjustment stage.
+- Added feature-flagged optional adjustment stage (`src/probablyfine/triage/optional_adjustment.py`) that emits rationale/annotation artifacts and preserves base deterministic score unless explicitly enabled.
+- Integrated optional stage into pipeline/scanner with config gate (`processing.allow_llm_adjustment`) plus explicit runtime apply flag (`PROBABLYFINE_ENABLE_LLM_ADJUSTMENT=1`).
+- Added stage tests (`tests/test_optional_adjustment.py`) and docs/wrapper updates.
+- Updated `.project-tasks/backlog.md` status for `PF-044` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-044` in completed ahead-of-scope work.
+- Completed `PF-062` context drift checker.
+- Added deterministic context drift checker (`src/probablyfine/triage/context_drift_checker.py`) with warnings for schema failures, stale file age, unknown-heavy context, and empty endpoint definitions.
+- Added compatibility wrapper/CLI entry (`probablyfine-context-drift`) and test coverage (`tests/test_context_drift_checker.py`).
+- Updated docs and CLI references with context drift checker usage.
+- Updated `.project-tasks/backlog.md` status for `PF-062` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-062` in completed ahead-of-scope work.
+- Completed `PF-061` Codex-guided context authoring mode.
+- Extended context creator with codex-guided flow (`--codex-guided`, `--answers-json`, `--emit-questionnaire`) for deterministic questionnaire-based authoring compatible with Codex usage.
+- Added codex-guided context authoring test coverage (`tests/test_context_creator_codex.py`).
+- Updated README/script/CLI reference docs with codex-guided usage.
+- Updated `.project-tasks/backlog.md` status for `PF-061` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-061` in completed ahead-of-scope work.
+- Completed `PF-041` threat intel stage (EPSS/KEV) with deterministic fallback behavior.
+- Threat intel stage now emits `threat_intel.json` even when fetch fails, preserving bounded deterministic downstream scoring (`E:X` when intel unknown).
+- Updated `.project-tasks/backlog.md` status for `PF-041` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-041` as completed in scope.
+- Completed `PF-042` context mapping stage for CVSS environmental metrics.
+- Updated environment override mapping to read canonical nested context schema fields (`data`, `network`, `auth_boundary`, `component`) with deterministic legacy-key fallback.
+- Updated `.project-tasks/backlog.md` status for `PF-042` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-042` as completed in scope.
+- Completed `PF-043` deterministic scoring and ranking stage.
+- Hardened scoring input normalization for CVE/package/severity/source handling before sorting/ranking to preserve stable output with equivalent inputs.
+- Updated `.project-tasks/backlog.md` status for `PF-043` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-043` as completed in scope.
+- Completed `PF-050` report generation and dated output structure.
+- Added `--repo-root` support in triage pipeline so default derived artifacts and reports are emitted under `.probablyfine/cache/<date>/` and `.probablyfine/reports/<date>/report-<timestamp>.*`.
+- Updated `README.md` and triage CLI reference docs with `--repo-root` usage and dated output paths.
+- Updated `.project-tasks/backlog.md` status for `PF-050` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to record `PF-050` as completed in scope.
+- Completed `PF-080` unit tests for pipeline stages.
+- Added deterministic fixture-based stage tests for threat intel (`tests/test_fetch_threat_intel.py`), context mapping (`tests/test_select_env_overrides.py`), and score/rank (`tests/test_score_and_rank.py`).
+- Updated `.project-tasks/backlog.md` status for `PF-080` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-080` in completed ahead-of-scope work.
+- Completed `PF-081` integration tests for full repo processing.
+- Added deterministic scanner integration test (`tests/test_scanner_integration.py`) covering one-repo offline processing with fixture collector inputs and verification of emitted dated cache/report artifacts.
+- Updated `.project-tasks/backlog.md` status for `PF-081` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-081` in completed ahead-of-scope work.
+- Completed `PF-082` failure-mode tests.
+- Added deterministic tests (`tests/test_failure_modes.py`) covering missing `.probablyfine/config.json`, Dependabot auth failure (no token and no fallback), and bounded timeout/retry failure handling for Dependabot API calls.
+- Updated `.project-tasks/backlog.md` status for `PF-082` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-082` in completed ahead-of-scope work.
+- Completed `PF-052` run index generation.
+- Scanner now writes `.probablyfine/reports/<YYYY-MM-DD>/index.json` by aggregating dated run manifests into deterministic report summaries.
+- Extended integration coverage to assert index generation and content.
+- Updated `README.md` output documentation for report index files.
+- Updated `.project-tasks/backlog.md` status for `PF-052` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-052` in completed ahead-of-scope work.
+- Completed `PF-033` data source authentication strategy.
+- Added deterministic collector auth preflight validation (`validate_collector_auth`) and integrated it into scanner flow before source collection.
+- Documented credential/input precedence and failure behavior in `README.md` and scanner CLI reference.
+- Updated `.project-tasks/backlog.md` status for `PF-033` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-033` in completed ahead-of-scope work.
+- Completed `PF-090` documentation and onboarding.
+- Expanded `README.md` with onboarding quickstart, explicit setup/auth/run-mode commands, and consolidated output artifact paths.
+- Updated `.project-tasks/backlog.md` status for `PF-090` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-090` in completed ahead-of-scope work.
+- Added formal `.probablyfine` input contract document at `contracts/probablyfine-contract.md`.
+- Added JSON schemas:
+  - `contracts/schemas/context.schema.json`
+  - `contracts/schemas/config.schema.json`
+- Added deterministic starter schema/contract validation utility:
+  - `scripts/probablyfine-triage/validate_starter_contracts.py`
+- Updated `README.md` and `.agents/skills/probablyfine-triage/references/contracts.md` with schema/contract references and validation command.
+- Marked tasks `PF-001`, `PF-002`, and `PF-003` as `DONE`.
+- Updated current sprint progress notes to include `PF-001`/`PF-002`/`PF-003` completions.
+- Implemented scanner wrapper CLI in `src/probablyfine/scanner.py` with multi-repo path input and per-repo pipeline execution.
+- Added scanner compatibility wrapper at `scripts/probablyfine-triage/scanner.py` and console script entry point `probablyfine-scan`.
+- Implemented deterministic `.probablyfine` discovery/validation in `src/probablyfine/contracts.py` and reused it from `scripts/probablyfine-triage/validate_starter_contracts.py`.
+- Updated scanner/CLI docs in `README.md`, `scripts/probablyfine-triage/README.md`, and `.agents/skills/probablyfine-triage/references/cli.md`.
+- Marked tasks `PF-010` and `PF-020` as `DONE`.
+- Added `--mode sequential|parallel` and `--workers` support to scanner (`PF-011`).
+- Added per-repo run manifest emission at `.probablyfine/reports/<date>/run-manifest-<run-id>.json` with run metadata (`PF-013`).
+- Updated scanner documentation and CLI references for parallel mode and manifest outputs.
+- Marked tasks `PF-011` and `PF-013` as `DONE` and aligned current sprint tracking.
+- Added scanner repo-list ingestion via `--repo-list` for newline-delimited repo path files (`PF-070`).
+- Added explicit resilient orchestration summary output with optional `--summary-json` containing per-repo statuses (`PF-012`).
+- Preserved fail-forward behavior: scanner continues processing remaining repos when individual repos fail validation or pipeline execution.
+- Updated scanner docs/CLI references for `--repo-list` and `--summary-json`.
+- Marked tasks `PF-012` and `PF-070` as `DONE` and aligned sprint tracking.
+- Added bounded repo batching/queueing to scanner via `--batch-size` (`PF-071`).
+- Scanner now processes repos in deterministic batches while preserving per-repo result ordering.
+- Updated scanner docs/CLI references for batching mode.
+- Marked task `PF-071` as `DONE` and aligned current sprint tracking.
+- Implemented typed config loader in `src/probablyfine/config_loader.py` and integrated scanner validation path (`PF-021`).
+- Scanner now fails clearly when typed config load fails or deterministic mode is disabled.
+- Updated `README.md` reference for typed config loader.
+- Marked task `PF-021` as `DONE` and aligned current sprint tracking.
+- Implemented deterministic ECR image reference resolution for tag/digest config inputs (`PF-022`).
+- Scanner now validates/resolves ECR image references before run and records normalized resolved refs in per-repo run manifests.
+- Updated `README.md` with config loader and ECR resolver references.
+- Marked task `PF-022` as `DONE` and aligned sprint tracking.
+- Implemented Dependabot collector with GitHub API fetch + dated raw cache artifact output (`PF-030`).
+- Added deterministic local override for Dependabot collector via `PROBABLYFINE_DEPENDABOT_FILE`.
+- Scanner now feeds pipeline from cached Dependabot raw artifact path and records collector metadata in run manifest.
+- Marked task `PF-030` as `DONE` and aligned sprint tracking.
+- Implemented ECR collector with `describe_image_scan_findings` API path and dated raw cache artifact output (`PF-031`).
+- Added deterministic local override for ECR collector via `PROBABLYFINE_ECR_FILE` with fallback to local `ecr_findings.json`.
+- Scanner now feeds pipeline from cached ECR raw artifact path and records ECR collector metadata in run manifest.
+- Marked task `PF-031` as `DONE` and aligned sprint tracking.
+- Implemented cache audit trail writer artifacts at `.probablyfine/cache/<date>/cache-audit-<run-id>.json` (`PF-051`).
+- Cache audit payload now records collector inputs/metadata and derived/report artifact paths per run.
+- Updated `README.md` to document cache audit output location.
+- Marked task `PF-051` as `DONE` and aligned sprint tracking.
+- Implemented deterministic bounded retry/timeout/rate-limit controls for Dependabot and ECR collectors (`PF-032`).
+- Added configurable collector control env vars for attempts/timeouts/sleep intervals with bounded validation.
+- Updated scanner docs and CLI references for collector retry/timeout controls.
+- Marked task `PF-032` as `DONE` and aligned sprint tracking.
+- Completed deterministic normalize/dedupe stage for correlated Dependabot + ECR findings (`PF-040`).
+- Hardened normalization determinism by selecting CVSS base vectors order-independently during merge.
+- Added focused normalization tests at `tests/test_normalize_findings.py` for dedupe/sorting and order-stable correlation behavior.
+- Ran offline pipeline smoke test with local fixtures to verify stage artifacts are emitted (`normalized_findings.json`, `threat_intel.json`, `env_overrides.json`, report outputs).
+- Updated docs in `README.md` and skill-stage references for normalization output behavior.
+- Marked task `PF-040` as `DONE` and aligned sprint tracking.
+
+## 2026-02-22
+
+- Completed `PF-095` synthetic triage fixture bundle.
+- Added `templates/probablyfine-synthetic/` with deterministic synthetic inputs:
+  - `dependabot.json`
+  - `ecr_findings.json`
+  - `threat_intel.json`
+  - `.probablyfine/context_public.json`
+  - `.probablyfine/context_internal.json`
+- Added fixture usage docs in `templates/probablyfine-synthetic/README.md` and linked the bundle from root `README.md`.
+- Validated deterministic stage execution against synthetic fixture for public/internal context variants:
+  - normalize stage output
+  - env override stage output
+  - score/rank report output
+- Updated `.project-tasks/backlog.md` status for `PF-095` to `DONE`.
+- Updated `.project-tasks/current-sprint.md` to include `PF-095` in completed ahead-of-scope work.

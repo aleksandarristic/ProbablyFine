@@ -1,7 +1,7 @@
 # Open Questions
 
 ## Q-001 Deterministic-only score vs optional LLM-adjusted score
-- Status: OPEN
+- Status: RESOLVED
 - Question: Should final risk score remain strictly deterministic in all modes, or allow an optional LLM adjustment layer?
 - Why it matters: affects reproducibility and policy controls.
 
@@ -11,7 +11,7 @@
 - Why it matters: required for robust ECR lookup parser behavior.
 
 ## Q-003 Cache retention policy
-- Status: OPEN
+- Status: RESOLVED
 - Question: Should retention be time-based, count-based, or manual cleanup only?
 - Why it matters: impacts disk growth and audit obligations.
 

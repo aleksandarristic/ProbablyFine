@@ -1,0 +1,544 @@
+#!/usr/bin/env python3
+"""Create .probablyfine/context.json from guided human input."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any, Dict, List
+
+
+DEFAULT_CONTEXT: Dict[str, Any] = {
+    "schema_version": "0.1.0",
+    "component": {
+        "name": "probablyfine",
+        "type": "service",
+        "runtime": "container",
+        "orchestrator": "kubernetes",
+        "cloud": "aws",
+        "platform": "eks",
+        "namespace": "prod",
+        "exposure": "internal",
+    },
+    "network": {
+        "internet_ingress": {
+            "public_entrypoint": True,
+            "unrestricted": False,
+            "fronted_by": ["nginx"],
+            "authn": "required",
+            "authz": "required",
+            "rate_limited": True,
+            "waf": "unknown",
+            "mTLS": "unknown",
+        },
+        "service_reachability": {
+            "reachable_from_internet_directly": False,
+            "reachable_via_public_ingress": True,
+            "reachable_from_same_vpc": True,
+            "reachable_only_from_cluster": False,
+        },
+        "allowed_endpoints": [
+            {"method": "GET", "path": "/healthz", "purpose": "healthcheck"},
+            {"method": "POST", "path": "/api/v1/thing", "purpose": "business"},
+        ],
+        "default_deny": True,
+    },
+    "auth_boundary": {
+        "internet_to_ingress": "strong",
+        "ingress_to_service": "unknown",
+        "service_requires_auth": True,
+        "auth_type": ["oidc", "jwt"],
+        "privilege_required": "user",
+    },
+    "data": {
+        "confidentiality_requirement": "high",
+        "integrity_requirement": "medium",
+        "availability_requirement": "medium",
+    },
+    "controls": {
+        "reverse_proxy_hardened": True,
+        "input_validation_at_edge": "unknown",
+        "egress_restricted": "unknown",
+        "pod_security": "unknown",
+        "network_policy_enforced": "unknown",
+    },
+    "runtime": {
+        "presence_default": "unknown",
+        "presence_by_package": [
+            {"package": "requests", "presence": "runtime"},
+        ],
+    },
+    "metadata": {
+        "owner_team": "platform-security",
+        "service_tier": "tier-2",
+        "last_reviewed": "2026-02-21",
+    },
+}
+
+
+CODEX_QUESTIONNAIRE: List[Dict[str, Any]] = [
+    {"key": "component.name", "type": "string", "prompt": "Component name"},
+    {"key": "component.type", "type": "enum", "options": ["service", "library", "batch", "worker", "other"]},
+    {"key": "component.runtime", "type": "enum", "options": ["container", "vm", "serverless", "bare-metal", "unknown"]},
+    {"key": "component.orchestrator", "type": "enum", "options": ["kubernetes", "ecs", "nomad", "none", "unknown"]},
+    {"key": "component.cloud", "type": "enum", "options": ["aws", "gcp", "azure", "on-prem", "unknown"]},
+    {"key": "component.platform", "type": "string", "prompt": "Platform"},
+    {"key": "component.namespace", "type": "string", "prompt": "Namespace/environment"},
+    {"key": "component.exposure", "type": "enum", "options": ["internal", "public", "unknown"]},
+    {"key": "auth_boundary.internet_to_ingress", "type": "enum", "options": ["strong", "weak", "none", "unknown"]},
+    {"key": "auth_boundary.ingress_to_service", "type": "enum", "options": ["strong", "weak", "none", "unknown"]},
+    {"key": "auth_boundary.privilege_required", "type": "enum", "options": ["none", "user", "service", "admin", "unknown"]},
+    {"key": "data.confidentiality_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
+    {"key": "data.integrity_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
+    {"key": "data.availability_requirement", "type": "enum", "options": ["high", "medium", "low", "unknown"]},
+    {"key": "runtime.presence_default", "type": "enum", "options": ["runtime", "build-only", "unknown"]},
+    {"key": "metadata.owner_team", "type": "string", "prompt": "Owner team"},
+    {"key": "metadata.service_tier", "type": "string", "prompt": "Service tier"},
+    {"key": "metadata.last_reviewed", "type": "string", "prompt": "Last reviewed date"},
+]
+
+
+def _get_path(payload: Dict[str, Any], key_path: str) -> Any:
+    cur: Any = payload
+    for key in key_path.split("."):
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(key)
+    return cur
+
+
+def _set_path(payload: Dict[str, Any], key_path: str, value: Any) -> None:
+    parts = key_path.split(".")
+    cur: Any = payload
+    for key in parts[:-1]:
+        if not isinstance(cur, dict):
+            raise ValueError(f"Cannot set path '{key_path}'")
+        if key not in cur or not isinstance(cur[key], dict):
+            cur[key] = {}
+        cur = cur[key]
+    if not isinstance(cur, dict):
+        raise ValueError(f"Cannot set path '{key_path}'")
+    cur[parts[-1]] = value
+
+
+def emit_codex_questionnaire() -> None:
+    print("# Codex Guided Context Questionnaire")
+    print("# Provide answers as JSON object keyed by `key` fields below.")
+    for row in CODEX_QUESTIONNAIRE:
+        key = row["key"]
+        default = _get_path(DEFAULT_CONTEXT, key)
+        options = row.get("options")
+        if options:
+            print(f"- key: {key}")
+            print(f"  type: {row['type']}")
+            print(f"  options: {options}")
+            print(f"  default: {default}")
+        else:
+            print(f"- key: {key}")
+            print(f"  type: {row['type']}")
+            print(f"  default: {default}")
+
+
+def apply_codex_answers(payload: Dict[str, Any], answers: Dict[str, Any]) -> Dict[str, Any]:
+    allowed: Dict[str, Dict[str, Any]] = {row["key"]: row for row in CODEX_QUESTIONNAIRE}
+    for key, value in answers.items():
+        if key not in allowed:
+            raise ValueError(f"Unsupported codex answer key: {key}")
+        spec = allowed[key]
+        if spec["type"] == "enum":
+            if not isinstance(value, str) or value not in spec["options"]:
+                raise ValueError(f"Invalid value for {key}. Expected one of: {spec['options']}")
+        elif spec["type"] == "string":
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"Invalid string value for {key}")
+        _set_path(payload, key, value)
+    return payload
+
+
+def read_input(prompt: str) -> str:
+    return input(prompt).strip()
+
+
+def ask_text(label: str, default: str, non_interactive: bool) -> str:
+    if non_interactive:
+        return default
+    value = read_input(f"{label} [{default}]: ")
+    return value if value else default
+
+
+def ask_choice(label: str, options: List[str], default: str, non_interactive: bool) -> str:
+    normalized = {opt.lower(): opt for opt in options}
+    if default.lower() not in normalized:
+        raise ValueError(f"Default '{default}' not in options for '{label}'")
+
+    if non_interactive:
+        return normalized[default.lower()]
+
+    while True:
+        joined = "/".join(options)
+        value = read_input(f"{label} ({joined}) [{default}]: ")
+        if not value:
+            return normalized[default.lower()]
+        key = value.lower()
+        if key in normalized:
+            return normalized[key]
+        print(f"Invalid value. Expected one of: {joined}")
+
+
+def ask_bool(label: str, default: bool, non_interactive: bool) -> bool:
+    default_token = "y" if default else "n"
+    if non_interactive:
+        return default
+
+    while True:
+        value = read_input(f"{label} (y/n) [{default_token}]: ").lower()
+        if not value:
+            return default
+        if value in {"y", "yes", "true", "1"}:
+            return True
+        if value in {"n", "no", "false", "0"}:
+            return False
+        print("Invalid value. Enter y or n.")
+
+
+def ask_tri_bool(label: str, default: Any, non_interactive: bool) -> Any:
+    if default is True:
+        default_token = "yes"
+    elif default is False:
+        default_token = "no"
+    else:
+        default_token = "unknown"
+
+    value = ask_choice(label, ["yes", "no", "unknown"], default_token, non_interactive)
+    if value == "yes":
+        return True
+    if value == "no":
+        return False
+    return "unknown"
+
+
+def ask_list(label: str, default: List[str], non_interactive: bool) -> List[str]:
+    if non_interactive:
+        return default
+
+    default_display = ",".join(default)
+    raw = read_input(f"{label} (comma-separated) [{default_display}]: ")
+    if not raw:
+        return default
+    out = [part.strip() for part in raw.split(",") if part.strip()]
+    return out if out else default
+
+
+def ask_int(label: str, default: int, min_value: int, max_value: int, non_interactive: bool) -> int:
+    if non_interactive:
+        return default
+
+    while True:
+        value = read_input(f"{label} [{default}]: ")
+        if not value:
+            return default
+        try:
+            parsed = int(value)
+        except ValueError:
+            print("Invalid integer.")
+            continue
+        if parsed < min_value or parsed > max_value:
+            print(f"Out of range. Expected {min_value}..{max_value}.")
+            continue
+        return parsed
+
+
+def build_context(non_interactive: bool) -> Dict[str, Any]:
+    d = DEFAULT_CONTEXT
+
+    component = {
+        "name": ask_text("Component name", d["component"]["name"], non_interactive),
+        "type": ask_choice(
+            "Component type",
+            ["service", "library", "batch", "worker", "other"],
+            d["component"]["type"],
+            non_interactive,
+        ),
+        "runtime": ask_choice(
+            "Runtime model",
+            ["container", "vm", "serverless", "bare-metal", "unknown"],
+            d["component"]["runtime"],
+            non_interactive,
+        ),
+        "orchestrator": ask_choice(
+            "Orchestrator",
+            ["kubernetes", "ecs", "nomad", "none", "unknown"],
+            d["component"]["orchestrator"],
+            non_interactive,
+        ),
+        "cloud": ask_choice(
+            "Cloud provider",
+            ["aws", "gcp", "azure", "on-prem", "unknown"],
+            d["component"]["cloud"],
+            non_interactive,
+        ),
+        "platform": ask_text("Platform", d["component"]["platform"], non_interactive),
+        "namespace": ask_text("Namespace/environment", d["component"]["namespace"], non_interactive),
+        "exposure": ask_choice(
+            "Exposure",
+            ["internal", "public", "unknown"],
+            d["component"]["exposure"],
+            non_interactive,
+        ),
+    }
+
+    ingress_defaults = d["network"]["internet_ingress"]
+    reach_defaults = d["network"]["service_reachability"]
+
+    internet_ingress = {
+        "public_entrypoint": ask_bool("Public entrypoint exists", ingress_defaults["public_entrypoint"], non_interactive),
+        "unrestricted": ask_bool("Unrestricted public access", ingress_defaults["unrestricted"], non_interactive),
+        "fronted_by": ask_list("Ingress fronted by", ingress_defaults["fronted_by"], non_interactive),
+        "authn": ask_choice(
+            "Ingress authentication",
+            ["required", "not-required", "unknown"],
+            ingress_defaults["authn"],
+            non_interactive,
+        ),
+        "authz": ask_choice(
+            "Ingress authorization",
+            ["required", "not-required", "unknown"],
+            ingress_defaults["authz"],
+            non_interactive,
+        ),
+        "rate_limited": ask_bool("Ingress rate-limited", ingress_defaults["rate_limited"], non_interactive),
+        "waf": ask_tri_bool("WAF enabled", ingress_defaults["waf"], non_interactive),
+        "mTLS": ask_tri_bool("mTLS enabled", ingress_defaults["mTLS"], non_interactive),
+    }
+
+    service_reachability = {
+        "reachable_from_internet_directly": ask_bool(
+            "Service directly reachable from internet",
+            reach_defaults["reachable_from_internet_directly"],
+            non_interactive,
+        ),
+        "reachable_via_public_ingress": ask_bool(
+            "Service reachable via public ingress",
+            reach_defaults["reachable_via_public_ingress"],
+            non_interactive,
+        ),
+        "reachable_from_same_vpc": ask_bool(
+            "Service reachable from same VPC",
+            reach_defaults["reachable_from_same_vpc"],
+            non_interactive,
+        ),
+        "reachable_only_from_cluster": ask_bool(
+            "Service reachable only from cluster",
+            reach_defaults["reachable_only_from_cluster"],
+            non_interactive,
+        ),
+    }
+
+    endpoint_defaults = d["network"]["allowed_endpoints"]
+    endpoint_count = ask_int("Number of allowed endpoints", len(endpoint_defaults), 0, 50, non_interactive)
+    allowed_endpoints: List[Dict[str, str]] = []
+    for i in range(endpoint_count):
+        base = endpoint_defaults[i] if i < len(endpoint_defaults) else {"method": "GET", "path": "/", "purpose": "unknown"}
+        allowed_endpoints.append(
+            {
+                "method": ask_text(f"Endpoint {i + 1} method", str(base["method"]).upper(), non_interactive).upper(),
+                "path": ask_text(f"Endpoint {i + 1} path", str(base["path"]), non_interactive),
+                "purpose": ask_text(f"Endpoint {i + 1} purpose", str(base["purpose"]), non_interactive),
+            }
+        )
+
+    network = {
+        "internet_ingress": internet_ingress,
+        "service_reachability": service_reachability,
+        "allowed_endpoints": allowed_endpoints,
+        "default_deny": ask_bool("Default deny network policy", d["network"]["default_deny"], non_interactive),
+    }
+
+    auth_defaults = d["auth_boundary"]
+    auth_boundary = {
+        "internet_to_ingress": ask_choice(
+            "Internet->ingress boundary",
+            ["strong", "weak", "none", "unknown"],
+            auth_defaults["internet_to_ingress"],
+            non_interactive,
+        ),
+        "ingress_to_service": ask_choice(
+            "Ingress->service boundary",
+            ["strong", "weak", "none", "unknown"],
+            auth_defaults["ingress_to_service"],
+            non_interactive,
+        ),
+        "service_requires_auth": ask_bool(
+            "Service requires auth",
+            auth_defaults["service_requires_auth"],
+            non_interactive,
+        ),
+        "auth_type": ask_list("Auth types", auth_defaults["auth_type"], non_interactive),
+        "privilege_required": ask_choice(
+            "Privilege required",
+            ["none", "user", "service", "admin", "unknown"],
+            auth_defaults["privilege_required"],
+            non_interactive,
+        ),
+    }
+
+    data_defaults = d["data"]
+    data = {
+        "confidentiality_requirement": ask_choice(
+            "Confidentiality requirement",
+            ["high", "medium", "low", "unknown"],
+            data_defaults["confidentiality_requirement"],
+            non_interactive,
+        ),
+        "integrity_requirement": ask_choice(
+            "Integrity requirement",
+            ["high", "medium", "low", "unknown"],
+            data_defaults["integrity_requirement"],
+            non_interactive,
+        ),
+        "availability_requirement": ask_choice(
+            "Availability requirement",
+            ["high", "medium", "low", "unknown"],
+            data_defaults["availability_requirement"],
+            non_interactive,
+        ),
+    }
+
+    controls_defaults = d["controls"]
+    controls = {
+        "reverse_proxy_hardened": ask_bool(
+            "Reverse proxy hardened",
+            controls_defaults["reverse_proxy_hardened"],
+            non_interactive,
+        ),
+        "input_validation_at_edge": ask_tri_bool(
+            "Input validation at edge",
+            controls_defaults["input_validation_at_edge"],
+            non_interactive,
+        ),
+        "egress_restricted": ask_tri_bool(
+            "Egress restricted",
+            controls_defaults["egress_restricted"],
+            non_interactive,
+        ),
+        "pod_security": ask_tri_bool(
+            "Pod security enforced",
+            controls_defaults["pod_security"],
+            non_interactive,
+        ),
+        "network_policy_enforced": ask_tri_bool(
+            "Network policy enforced",
+            controls_defaults["network_policy_enforced"],
+            non_interactive,
+        ),
+    }
+
+    runtime_defaults = d["runtime"]
+    runtime_entry_defaults = runtime_defaults["presence_by_package"]
+    runtime_entry_count = ask_int(
+        "Number of per-package runtime overrides",
+        len(runtime_entry_defaults),
+        0,
+        200,
+        non_interactive,
+    )
+    runtime_entries: List[Dict[str, str]] = []
+    for i in range(runtime_entry_count):
+        base = (
+            runtime_entry_defaults[i]
+            if i < len(runtime_entry_defaults)
+            else {"package": "unknown", "presence": "unknown"}
+        )
+        runtime_entries.append(
+            {
+                "package": ask_text(
+                    f"Runtime override {i + 1} package",
+                    str(base["package"]),
+                    non_interactive,
+                ).strip().lower(),
+                "presence": ask_choice(
+                    f"Runtime override {i + 1} presence",
+                    ["runtime", "build-only", "unknown"],
+                    str(base["presence"]),
+                    non_interactive,
+                ),
+            }
+        )
+
+    runtime = {
+        "presence_default": ask_choice(
+            "Default runtime presence",
+            ["runtime", "build-only", "unknown"],
+            runtime_defaults["presence_default"],
+            non_interactive,
+        ),
+        "presence_by_package": runtime_entries,
+    }
+
+    metadata_defaults = d["metadata"]
+    metadata = {
+        "owner_team": ask_text("Owner team", metadata_defaults["owner_team"], non_interactive),
+        "service_tier": ask_text("Service tier", metadata_defaults["service_tier"], non_interactive),
+        "last_reviewed": ask_text("Last reviewed date", metadata_defaults["last_reviewed"], non_interactive),
+    }
+
+    return {
+        "schema_version": d["schema_version"],
+        "component": component,
+        "network": network,
+        "auth_boundary": auth_boundary,
+        "data": data,
+        "controls": controls,
+        "runtime": runtime,
+        "metadata": metadata,
+    }
+
+
+def write_context(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, sort_keys=True)
+        f.write("\n")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=Path(".probablyfine/context.json"))
+    parser.add_argument("--non-interactive", action="store_true", help="Write default starter context without prompts")
+    parser.add_argument("--codex-guided", action="store_true", help="Enable Codex-oriented guided authoring mode")
+    parser.add_argument("--emit-questionnaire", action="store_true", help="Print codex questionnaire template and exit")
+    parser.add_argument("--answers-json", type=Path, default=None, help="JSON file of codex answers keyed by path")
+    parser.add_argument("--force", action="store_true", help="Overwrite output file if it already exists")
+    args = parser.parse_args()
+
+    if args.emit_questionnaire:
+        emit_codex_questionnaire()
+        return 0
+
+    if args.output.exists() and not args.force:
+        if args.non_interactive:
+            raise SystemExit(f"Refusing to overwrite existing file: {args.output}. Use --force.")
+
+        overwrite = ask_bool(f"{args.output} exists. Overwrite", False, non_interactive=False)
+        if not overwrite:
+            raise SystemExit("Aborted by user.")
+
+    if args.codex_guided:
+        payload = build_context(non_interactive=True)
+        if args.answers_json is None:
+            emit_codex_questionnaire()
+            raise SystemExit("Codex-guided mode requires --answers-json for deterministic authoring.")
+        answers_raw = json.loads(args.answers_json.read_text(encoding="utf-8"))
+        if not isinstance(answers_raw, dict):
+            raise SystemExit("--answers-json must contain a JSON object keyed by question paths.")
+        payload = apply_codex_answers(payload, answers_raw)
+    else:
+        payload = build_context(non_interactive=args.non_interactive)
+    write_context(args.output, payload)
+    print(f"Wrote context: {args.output}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

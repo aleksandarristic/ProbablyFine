@@ -1,5 +1,18 @@
 # JSON Contracts
 
+## `.probablyfine` Input Contract
+
+Repository-level contract and schemas are defined in:
+
+- `contracts/probablyfine-contract.md`
+- `contracts/schemas/context.schema.json`
+- `contracts/schemas/config.schema.json`
+
+Context schema supports runtime mapping and metadata extensions:
+- `runtime.presence_default`
+- `runtime.presence_by_package[]` (`package`, `presence`)
+- `metadata.owner_team`, `metadata.service_tier`, `metadata.last_reviewed`
+
 ## `normalized_findings.json`
 
 ```json

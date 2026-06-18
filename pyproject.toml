@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "probablyfine"
+version = "0.1.0"
+description = "Deterministic vulnerability triage pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "ProbablyFine Contributors" }
+]
+dependencies = []
+
+[project.scripts]
+probablyfine-triage = "probablyfine.triage.triage_pipeline:main"
+probablyfine-triage-legacy = "probablyfine.triage.triage:main"
+probablyfine-verify-determinism = "probablyfine.triage.verify_determinism:main"
+probablyfine-context = "probablyfine.triage.context_creator:main"
+probablyfine-context-drift = "probablyfine.triage.context_drift_checker:main"
+probablyfine-scan = "probablyfine.scanner:main"
+probablyfine-retention = "probablyfine.retention:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["probablyfine*"]

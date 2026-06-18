@@ -1,0 +1,29 @@
+{
+  "context_json": "present",
+  "generated_at": "2026-02-22T18:48:20.963113+00:00",
+  "overrides": {
+    "AR": "AR:M",
+    "CR": "CR:H",
+    "IR": "IR:M",
+    "MAC": "MAC:H",
+    "MAV": "MAV:A",
+    "MPR": "MPR:L",
+    "exposure": "internal"
+  },
+  "rationale": {
+    "AR": "Mapped from availability_requirement in context.json",
+    "CR": "Mapped from confidentiality_requirement in context.json",
+    "IR": "Mapped from integrity_requirement in context.json",
+    "MAC": "Mapped from mTLS/mesh policy and exposure+auth boundary",
+    "MAV": "Mapped from ingress/network_reachability booleans",
+    "MPR": "Mapped from privileges_required"
+  },
+  "runtime_presence_by_package": {
+    "curl": "runtime",
+    "openssl": "runtime",
+    "pytest": "build-only",
+    "requests": "runtime"
+  },
+  "runtime_presence_default": "unknown",
+  "source": "context.json"
+}
