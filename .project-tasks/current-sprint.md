@@ -81,6 +81,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-099 optional adjustment now runs from the orchestrator when enabled by config or explicit output arguments.
 - PF-100 `score_and_rank.py` now uses the shared `pipeline_common.exposure_sub` helper.
 - PF-101 `build_threat_cache` now returns `fetch_status: ok` directly.
+- PF-102 report self-check now compares rendered findings-table rows with JSON `summary.total`.
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

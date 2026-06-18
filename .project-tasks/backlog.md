@@ -358,7 +358,7 @@ Each task is a small, readable card with:
 - Notes: `pipeline_common.py:424` — `build_threat_cache` returns a dict without `fetch_status`. `fetch_threat_intel.py:55` works around this by setting it manually. `triage_pipeline.py` calls `build_threat_cache` directly without this patch.
 
 ### PF-102 Fix `rows_count_ok` self-check to be meaningful
-- Status: TODO
+- Status: DONE
 - Priority: P3
 - Type: DET
 - Depends on: PF-043

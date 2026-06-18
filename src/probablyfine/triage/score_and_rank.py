@@ -51,6 +51,13 @@ def _compute_delta(
     return {"new": new, "resolved": resolved, "changed": changed}
 
 
+def _rows_count_ok(report: Dict[str, Any], rendered_finding_rows: List[str]) -> bool:
+    summary = report.get("summary")
+    if not isinstance(summary, dict):
+        return False
+    return summary.get("total") == len(rendered_finding_rows)
+
+
 def env_from_overrides(payload: Any) -> Dict[str, str]:
     overrides = payload.get("overrides", {}) if isinstance(payload, dict) else {}
     return {
@@ -172,6 +179,46 @@ def run_scoring(
 
     scored_rows.sort(key=lambda row: row["sort"])
     output_rows = [{k: v for k, v in row.items() if k != "sort"} for row in scored_rows]
+    report: Dict[str, Any] = {
+        "summary": {
+            "total": len(scored_rows),
+            "severity_counts": severity_counts,
+            "threat_counts": e_counts,
+            "source_counts": source_counts,
+        },
+        "findings": output_rows,
+    }
+    delta: Optional[Dict[str, Any]] = None
+    if previous_findings is not None:
+        delta = _compute_delta(output_rows, previous_findings)
+        report["delta"] = delta
+
+    rendered_finding_rows: List[str] = []
+    for idx, row in enumerate(scored_rows, start=1):
+        rendered_finding_rows.append(
+            "| "
+            + " | ".join(
+                [
+                    str(idx),
+                    str(row["risk"]),
+                    markdown_escape(row["cve"]),
+                    markdown_escape(row["package"]),
+                    row["severity"].capitalize(),
+                    f"E:{row['e']}",
+                    row["source_bucket"],
+                    row["runtime"],
+                    row["mav"],
+                    row["crirar"],
+                    markdown_escape(row["base_vector"]),
+                    markdown_escape(row["final_vector"]),
+                    markdown_escape(row["fix_version"]),
+                    markdown_escape(row["recommended_action"]),
+                    markdown_escape(row["evidence"]),
+                    markdown_escape(row["score_breakdown"]),
+                ]
+            )
+            + " |\n"
+        )
 
     unknowns: List[str] = []
     if normalized is None:
@@ -181,7 +228,7 @@ def run_scoring(
     if threat is None:
         unknowns.append("threat_intel.json missing; E may be X")
 
-    rows_count_ok = len(scored_rows) == sum(source_counts.values())
+    rows_count_ok = _rows_count_ok(report, rendered_finding_rows)
 
     inputs = normalized.get("inputs", {}) if isinstance(normalized, dict) else {}
     dependabot_state = inputs.get("dependabot.json", "missing")
@@ -228,31 +275,8 @@ def run_scoring(
             "RecommendedAction | Evidence | ScoreBreakdown |\n"
         )
         f.write("|---:|---:|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n")
-        for idx, row in enumerate(scored_rows, start=1):
-            f.write(
-                "| "
-                + " | ".join(
-                    [
-                        str(idx),
-                        str(row["risk"]),
-                        markdown_escape(row["cve"]),
-                        markdown_escape(row["package"]),
-                        row["severity"].capitalize(),
-                        f"E:{row['e']}",
-                        row["source_bucket"],
-                        row["runtime"],
-                        row["mav"],
-                        row["crirar"],
-                        markdown_escape(row["base_vector"]),
-                        markdown_escape(row["final_vector"]),
-                        markdown_escape(row["fix_version"]),
-                        markdown_escape(row["recommended_action"]),
-                        markdown_escape(row["evidence"]),
-                        markdown_escape(row["score_breakdown"]),
-                    ]
-                )
-                + " |\n"
-            )
+        for rendered_row in rendered_finding_rows:
+            f.write(rendered_row)
 
         f.write("\n## Missing Data / Unknowns\n")
         if unknowns:
@@ -270,7 +294,6 @@ def run_scoring(
         f.write("- RiskScore computed per formula: yes\n")
 
         if previous_findings is not None:
-            delta = _compute_delta(output_rows, previous_findings)
             f.write(
                 f"\n## Delta vs Previous Run\n\n"
                 f"New: {len(delta['new'])}, "
@@ -301,17 +324,6 @@ def run_scoring(
                     f.write(f"| {markdown_escape(cur['cve'])} | {markdown_escape(cur['package'])} | {sev} | {risk} |\n")
                 f.write("\n")
 
-    report: Dict[str, Any] = {
-        "summary": {
-            "total": len(scored_rows),
-            "severity_counts": severity_counts,
-            "threat_counts": e_counts,
-            "source_counts": source_counts,
-        },
-        "findings": output_rows,
-    }
-    if previous_findings is not None:
-        report["delta"] = delta
     write_json(output_json, report)
 
 

@@ -11,6 +11,11 @@ from probablyfine.triage import score_and_rank
 
 
 class ScoreAndRankTests(unittest.TestCase):
+    def test_rows_count_self_check_can_fail_on_summary_mismatch(self) -> None:
+        report = {"summary": {"total": 2}}
+        self.assertFalse(score_and_rank._rows_count_ok(report, ["| one |\n"]))
+        self.assertTrue(score_and_rank._rows_count_ok(report, ["| one |\n", "| two |\n"]))
+
     def test_scoring_is_deterministic_and_sorted(self) -> None:
         normalized = {
             "inputs": {"dependabot.json": "present", "ecr_findings.json": "present"},
