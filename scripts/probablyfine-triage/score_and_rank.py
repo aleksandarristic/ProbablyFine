@@ -17,6 +17,7 @@ from pipeline_common import (
     RUNTIME_SUB,
     bool_yn,
     build_intel_index,
+    exposure_sub,
     final_vector,
     fmt_sub,
     impact_sub,
@@ -42,35 +43,20 @@ def env_from_overrides(payload: Any) -> Dict[str, str]:
     }
 
 
-def exposure_sub(mav: str) -> float:
-    return {
-        "MAV:N": 1.00,
-        "MAV:A": 0.60,
-        "MAV:L": 0.30,
-        "MAV:X": 0.50,
-    }.get(mav, 0.50)
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--normalized", type=Path, default=Path("normalized_findings.json"))
-    parser.add_argument("--threat-intel", type=Path, default=Path("threat_intel.json"))
-    parser.add_argument("--env-overrides", type=Path, default=Path("env_overrides.json"))
-    parser.add_argument("--output-md", type=Path, default=Path("contextual-threat-risk-triage.md"))
-    parser.add_argument("--output-json", type=Path, default=Path("contextual-threat-risk-triage.json"))
-    parser.add_argument("--intel-fetch-performed", choices=["yes", "no"], default="no")
-    args = parser.parse_args()
-
-    normalized = read_json(args.normalized)
-    threat = read_json(args.threat_intel)
-    env_overrides = read_json(args.env_overrides)
-
+def run_scoring(
+    normalized: Any,
+    threat: Any,
+    env_overrides: Any,
+    output_md: Path,
+    output_json: Path,
+    intel_fetch_performed: str,
+) -> None:
     items = normalized.get("items", []) if isinstance(normalized, dict) else []
     intel_index = build_intel_index(threat)
     env = env_from_overrides(env_overrides)
 
     scored_rows: List[Dict[str, Any]] = []
-    severity_counts = {k: 0 for k in ["critical", "high", "medium", "low", "unknown"]}
+    severity_counts = {k: 0 for k in ["critical", "high", "medium", "low", "info", "unknown"]}
     e_counts = {k: 0 for k in ["A", "F", "P", "U", "X"]}
     source_counts = {k: 0 for k in ["Both", "ECR-only", "Dependabot-only"]}
 
@@ -115,7 +101,7 @@ def main() -> int:
         risk_score = max(0, min(100, int(round(risk_raw))))
         severity_counts[severity] += 1
 
-        base_vector = item.get("cvss4_base_vector") if isinstance(item.get("cvss4_base_vector"), str) else None
+        base_vector = item.get("cvss_base_vector") if isinstance(item.get("cvss_base_vector"), str) else None
 
         evidence_ids = item.get("evidence_ids") if isinstance(item.get("evidence_ids"), list) else []
         evidence = ", ".join(sorted({str(x) for x in evidence_ids if x is not None})) or "unknown"
@@ -171,14 +157,14 @@ def main() -> int:
     threat_state = "present" if threat is not None else "missing"
     intel_sources = threat.get("sources", {}) if isinstance(threat, dict) else {}
 
-    with args.output_md.open("w", encoding="utf-8") as f:
+    with output_md.open("w", encoding="utf-8") as f:
         f.write("# Contextual Threat-Informed Vulnerability Triage Report\n\n")
         f.write("## Inputs\n")
         f.write(f"- dependabot.json: {dependabot_state}\n")
         f.write(f"- ecr_findings.json: {ecr_state}\n")
         f.write(f"- context.json: {context_state}\n")
         f.write(f"- threat_intel.json: {threat_state}\n")
-        f.write(f"- intel_fetch_performed: {args.intel_fetch_performed}\n")
+        f.write(f"- intel_fetch_performed: {intel_fetch_performed}\n")
         f.write("- intel_sources:\n")
         f.write(f"  - epss: {intel_sources.get('epss', 'missing')}\n")
         f.write(f"  - kev: {intel_sources.get('kev', 'missing')}\n\n")
@@ -189,6 +175,7 @@ def main() -> int:
         f.write(f"High: {severity_counts['high']}\n")
         f.write(f"Medium: {severity_counts['medium']}\n")
         f.write(f"Low: {severity_counts['low']}\n")
+        f.write(f"Info: {severity_counts['info']}\n")
         f.write(f"Unknown: {severity_counts['unknown']}\n\n")
 
         f.write(f"E:A: {e_counts['A']}\n")
@@ -204,7 +191,7 @@ def main() -> int:
         f.write("## Findings\n\n")
         f.write(
             "| Rank | RiskScore | CVE | Package | Severity | E | SourceBucket | RuntimeRelevance | "
-            "Exposure(MAV) | CR/IR/AR | CVSS4_BaseVector | CVSS4_FinalVector | FixVersion | "
+            "Exposure(MAV) | CR/IR/AR | CVSSBaseVector | CVSSFinalVector | FixVersion | "
             "RecommendedAction | Evidence | ScoreBreakdown |\n"
         )
         f.write("|---:|---:|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n")
@@ -250,7 +237,7 @@ def main() -> int:
         f.write("- RiskScore computed per formula: yes\n")
 
     write_json(
-        args.output_json,
+        output_json,
         {
             "summary": {
                 "total": len(scored_rows),
@@ -264,6 +251,26 @@ def main() -> int:
         },
     )
 
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--normalized", type=Path, default=Path("normalized_findings.json"))
+    parser.add_argument("--threat-intel", type=Path, default=Path("threat_intel.json"))
+    parser.add_argument("--env-overrides", type=Path, default=Path("env_overrides.json"))
+    parser.add_argument("--output-md", type=Path, default=Path("contextual-threat-risk-triage.md"))
+    parser.add_argument("--output-json", type=Path, default=Path("contextual-threat-risk-triage.json"))
+    parser.add_argument("--intel-fetch-performed", choices=["yes", "no"], default="no")
+    args = parser.parse_args()
+    run_scoring(
+        normalized=read_json(args.normalized),
+        threat=read_json(args.threat_intel),
+        env_overrides=read_json(args.env_overrides),
+        output_md=args.output_md,
+        output_json=args.output_json,
+        intel_fetch_performed=args.intel_fetch_performed,
+    )
     return 0
 
 

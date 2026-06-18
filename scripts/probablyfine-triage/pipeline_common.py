@@ -21,7 +21,7 @@ KEV_RAW_URL = (
 
 CVE_PATTERN = re.compile(r"CVE-\d{4}-\d{4,}", re.IGNORECASE)
 
-SEVERITY_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1, "unknown": 0}
+SEVERITY_RANK = {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1, "unknown": 0}
 THREAT_RANK = {"A": 4, "F": 3, "P": 2, "U": 1, "X": 0}
 SOURCE_RANK = {"Both": 3, "ECR-only": 2, "Dependabot-only": 1}
 RUNTIME_RANK = {"runtime": 2, "unknown": 1, "build-only": 0}
@@ -31,7 +31,13 @@ SEVERITY_SUB = {
     "high": 0.75,
     "medium": 0.50,
     "low": 0.25,
+    "info": 0.05,
     "unknown": 0.10,
+}
+
+_SEVERITY_ALIASES = {
+    "informational": "info",
+    "negligible": "info",
 }
 THREAT_SUB = {"A": 1.00, "F": 0.75, "P": 0.50, "U": 0.25, "X": 0.10}
 RUNTIME_SUB = {"runtime": 1.00, "unknown": 0.70, "build-only": 0.30}
@@ -93,6 +99,7 @@ def norm_severity(value: Any) -> str:
     if not isinstance(value, str):
         return "unknown"
     v = value.strip().lower()
+    v = _SEVERITY_ALIASES.get(v, v)
     return v if v in SEVERITY_RANK else "unknown"
 
 
@@ -324,7 +331,7 @@ def normalized_findings_payload(
                 "package": finding.package,
                 "severity": finding.severity,
                 "fix_version": finding.fix_version,
-                "cvss4_base_vector": finding.base_vector,
+                "cvss_base_vector": finding.base_vector,
                 "sources": sorted(finding.sources),
                 "source_bucket": source_bucket_for_sources(finding.sources),
                 "evidence_ids": sorted(set(finding.evidence_ids)),
@@ -471,27 +478,24 @@ def env_metrics(context: Any) -> Dict[str, str]:
             "runtime_presence_default": "unknown",
         }
 
-    cr = req_metric(context.get("confidentiality_requirement"), "CR")
-    ir = req_metric(context.get("integrity_requirement"), "IR")
-    ar = req_metric(context.get("availability_requirement"), "AR")
+    data = context.get("data") if isinstance(context.get("data"), dict) else {}
+    cr = req_metric(data.get("confidentiality_requirement"), "CR")
+    ir = req_metric(data.get("integrity_requirement"), "IR")
+    ar = req_metric(data.get("availability_requirement"), "AR")
 
-    ingress = context.get("ingress") if isinstance(context.get("ingress"), dict) else {}
-    reach = (
-        context.get("network_reachability")
-        if isinstance(context.get("network_reachability"), dict)
-        else {}
-    )
+    network = context.get("network") if isinstance(context.get("network"), dict) else {}
+    ingress = network.get("internet_ingress") if isinstance(network.get("internet_ingress"), dict) else {}
+    reach = network.get("service_reachability") if isinstance(network.get("service_reachability"), dict) else {}
 
     if (
-        ingress.get("public_lb") is True
-        or ingress.get("public_ip") is True
-        or ingress.get("sg_allows_0_0_0_0") is True
-        or reach.get("reachable_from_internet") is True
+        reach.get("reachable_from_internet_directly") is True
+        or reach.get("reachable_via_public_ingress") is True
+        or ingress.get("unrestricted") is True
     ):
         mav = "MAV:N"
     elif reach.get("reachable_from_same_vpc") is True:
         mav = "MAV:A"
-    elif reach.get("reachable_only_from_same_host") is True:
+    elif reach.get("reachable_only_from_cluster") is True:
         mav = "MAV:L"
     else:
         mav = "MAV:X"
@@ -502,30 +506,28 @@ def env_metrics(context: Any) -> Dict[str, str]:
         "service": "MPR:L",
         "admin": "MPR:H",
     }
-    pr = context.get("privileges_required")
+    auth_boundary = context.get("auth_boundary") if isinstance(context.get("auth_boundary"), dict) else {}
+    pr = auth_boundary.get("privilege_required")
     mpr = mpr_map.get(pr.strip().lower(), "MPR:X") if isinstance(pr, str) else "MPR:X"
 
-    exposure = context.get("exposure") if isinstance(context.get("exposure"), str) else "unknown"
+    component = context.get("component") if isinstance(context.get("component"), dict) else {}
+    exposure = component.get("exposure") if isinstance(component.get("exposure"), str) else "unknown"
     exposure = exposure.strip().lower()
-    auth_boundary = (
-        context.get("auth_boundary").strip().lower()
-        if isinstance(context.get("auth_boundary"), str)
-        else "unknown"
-    )
 
-    if context.get("requires_mtls") is True or context.get("service_mesh_policy_enforced") is True:
+    controls = context.get("controls") if isinstance(context.get("controls"), dict) else {}
+    mtls = ingress.get("mTLS")
+    net_policy = controls.get("network_policy_enforced")
+    internet_to_ingress = auth_boundary.get("internet_to_ingress")
+    internet_to_ingress_str = internet_to_ingress.strip().lower() if isinstance(internet_to_ingress, str) else "unknown"
+
+    if mtls is True or net_policy is True:
         mac = "MAC:H"
-    elif exposure == "internal" and auth_boundary != "none":
+    elif exposure == "internal" and internet_to_ingress_str not in ("none", "unknown"):
         mac = "MAC:H"
-    elif exposure == "public" and auth_boundary == "none":
+    elif exposure == "public" and internet_to_ingress_str == "none":
         mac = "MAC:L"
     else:
         mac = "MAC:X"
-
-    runtime_default = "unknown"
-    rp = context.get("runtime_presence")
-    if isinstance(rp, str) and rp.strip().lower() in RUNTIME_RANK:
-        runtime_default = rp.strip().lower()
 
     return {
         "CR": cr,
@@ -535,7 +537,7 @@ def env_metrics(context: Any) -> Dict[str, str]:
         "MPR": mpr,
         "MAC": mac,
         "exposure": exposure,
-        "runtime_presence_default": runtime_default,
+        "runtime_presence_default": "unknown",
     }
 
 
@@ -550,12 +552,12 @@ def env_overrides_payload(context: Any) -> Dict[str, Any]:
                     runtime_by_package[pkg.strip().lower()] = norm_val
 
     rationale = {
-        "CR": "Mapped from confidentiality_requirement in context.json",
-        "IR": "Mapped from integrity_requirement in context.json",
-        "AR": "Mapped from availability_requirement in context.json",
-        "MAV": "Mapped from ingress/network_reachability booleans",
-        "MAC": "Mapped from mTLS/mesh policy and exposure+auth boundary",
-        "MPR": "Mapped from privileges_required",
+        "CR": "Mapped from data.confidentiality_requirement in context.json",
+        "IR": "Mapped from data.integrity_requirement in context.json",
+        "AR": "Mapped from data.availability_requirement in context.json",
+        "MAV": "Mapped from network.service_reachability and network.internet_ingress booleans",
+        "MAC": "Mapped from network.internet_ingress.mTLS, controls.network_policy_enforced, component.exposure, and auth_boundary.internet_to_ingress",
+        "MPR": "Mapped from auth_boundary.privilege_required",
     }
 
     return {
@@ -631,10 +633,30 @@ def impact_sub(cr: str, ir: str, ar: str) -> float:
     return 0.50
 
 
+def cvss_base_version(vector: Optional[str]) -> str:
+    """Return "4", "3", or "unknown" based on the vector string prefix."""
+    if not isinstance(vector, str):
+        return "unknown"
+    v = vector.strip()
+    if v.startswith("CVSS:4."):
+        return "4"
+    if v.startswith("CVSS:3."):
+        return "3"
+    return "unknown"
+
+
+# Internal threat code → CVSS E: value per version.
+# CVSSv3 uses F (Functional); CVSSv4 uses A (Attacked) but not F.
+_E_TO_CVSS3: Dict[str, str] = {"A": "H", "F": "F", "P": "P", "U": "U", "X": "X"}
+_E_TO_CVSS4: Dict[str, str] = {"A": "A", "F": "P", "P": "P", "U": "U", "X": "X"}
+
+
 def final_vector(base_vector: Optional[str], e: str, env: Dict[str, str]) -> Optional[str]:
     if not base_vector:
         return None
-    parts = [base_vector, f"E:{e}"]
+    ver = cvss_base_version(base_vector)
+    e_val = (_E_TO_CVSS3 if ver == "3" else _E_TO_CVSS4).get(e, "X")
+    parts = [base_vector, f"E:{e_val}"]
     for key in ("CR", "IR", "AR", "MAV", "MAC", "MPR"):
         val = env[key]
         if not val.endswith(":X"):
