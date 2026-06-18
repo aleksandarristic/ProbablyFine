@@ -240,3 +240,11 @@
 - `final_vector` now returns `None` when the base vector version is unknown, preventing CVSSv4 threat metrics from being appended to CVSSv2 or malformed vectors.
 - Added a scoring regression test that verifies reports render `final_vector` as `unknown` for a CVSSv2 base vector.
 - Updated the triage skill vector rules to document unsupported-version handling.
+
+## 2026-06-18
+
+- Completed `PF-099`.
+- Added reusable `run_adjustment` logic and wired `triage_pipeline.py` to emit optional adjustment artifacts.
+- `--repo-root` now checks `.probablyfine/config.json` `processing.allow_llm_adjustment`; enabled configs write `report-<timestamp>-llm-adjustment.json`, while disabled configs skip the stage.
+- Added explicit `--llm-adjustment-output` and `--enable-llm-adjustment` pipeline arguments for scanner compatibility.
+- Added repo-root tests for both skipped and emitted optional adjustment artifacts, and updated README plus triage stage docs.

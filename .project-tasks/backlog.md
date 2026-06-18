@@ -334,7 +334,7 @@ Each task is a small, readable card with:
 - Notes: `pipeline_common.py:726` — the ternary `(_E_TO_CVSS3 if ver == "3" else _E_TO_CVSS4)` silently falls through to CVSSv4 for any non-v3 string, including v2 vectors and malformed inputs.
 
 ### PF-099 Wire `optional_adjustment` stage into pipeline orchestrator
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: LLM
 - Depends on: PF-044, PF-096

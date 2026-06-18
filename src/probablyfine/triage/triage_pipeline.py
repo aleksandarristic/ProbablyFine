@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -19,6 +20,7 @@ from .pipeline_common import (
     write_json,
 )
 from .fetch_threat_intel import empty_cache
+from .optional_adjustment import run_adjustment
 from .score_and_rank import run_scoring
 
 DEFAULT_CONTEXT = Path("context.json")
@@ -93,6 +95,8 @@ def _run(
     reuse_threat_cache: bool,
     weights: Optional[Dict[str, float]] = None,
     previous_findings: Optional[List[Dict[str, Any]]] = None,
+    llm_adjustment_out: Optional[Path] = None,
+    enable_llm_adjustment: bool = False,
 ) -> None:
     normalized = _stage_normalize(dependabot_path, ecr_path)
     write_json(normalized_out, normalized)
@@ -116,6 +120,12 @@ def _run(
         weights=weights,
         previous_findings=previous_findings,
     )
+    if llm_adjustment_out is not None:
+        run_adjustment(
+            report_json=output_json,
+            output=llm_adjustment_out,
+            enable_adjustment=enable_llm_adjustment,
+        )
 
 
 def main() -> int:
@@ -128,6 +138,8 @@ def main() -> int:
     parser.add_argument("--env-overrides", type=Path, default=DEFAULT_ENV_OVERRIDES)
     parser.add_argument("--output-md", type=Path, default=DEFAULT_REPORT_MD)
     parser.add_argument("--output-json", type=Path, default=DEFAULT_REPORT_JSON)
+    parser.add_argument("--llm-adjustment-output", type=Path)
+    parser.add_argument("--enable-llm-adjustment", action="store_true")
     parser.add_argument(
         "--repo-root",
         type=Path,
@@ -148,12 +160,19 @@ def main() -> int:
 
         config = read_json(pf_dir / "config.json") if (pf_dir / "config.json").exists() else {}
         weights: Optional[Dict[str, float]] = None
+        allow_llm_adjustment = False
         if isinstance(config, dict):
             proc = config.get("processing", {})
             if isinstance(proc, dict) and isinstance(proc.get("scoring_weights"), dict):
                 weights = proc["scoring_weights"]
+            if isinstance(proc, dict) and proc.get("allow_llm_adjustment") is True:
+                allow_llm_adjustment = True
 
         previous_findings = _find_latest_report(report_dir.parent) if report_dir.parent.exists() else None
+        enable_llm_adjustment = (
+            args.enable_llm_adjustment
+            or os.environ.get("PROBABLYFINE_ENABLE_LLM_ADJUSTMENT", "").strip() == "1"
+        )
 
         _run(
             dependabot_path=_existing_file(pf_dir / "dependabot.json"),
@@ -168,6 +187,10 @@ def main() -> int:
             reuse_threat_cache=True,
             weights=weights,
             previous_findings=previous_findings,
+            llm_adjustment_out=(
+                report_dir / f"report-{ts}-llm-adjustment.json" if allow_llm_adjustment else None
+            ),
+            enable_llm_adjustment=enable_llm_adjustment,
         )
     else:
         _run(
@@ -181,6 +204,8 @@ def main() -> int:
             output_json=args.output_json,
             offline=args.offline,
             reuse_threat_cache=False,
+            llm_adjustment_out=args.llm_adjustment_output,
+            enable_llm_adjustment=args.enable_llm_adjustment,
         )
 
     return 0

@@ -28,6 +28,11 @@ The implementation code lives under `scripts/probablyfine-triage/`; the skill is
 5. `scripts/probablyfine-triage/triage_pipeline.py`
 - Thin deterministic orchestrator running stages in fixed order
 
+6. `scripts/probablyfine-triage/optional_adjustment.py`
+- Feature-flagged annotation stage
+- Runs from the orchestrator only when config or explicit CLI output enables it
+- Writes a separate artifact and does not mutate deterministic report scores
+
 ## Why this split
 
 - Separates deterministic transforms from context mapping and report rendering.

@@ -41,14 +41,8 @@ def _as_int(value: Any, default: int = 0) -> int:
         return default
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report-json", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--enable-adjustment", action="store_true")
-    args = parser.parse_args()
-
-    payload = read_json(args.report_json) or {}
+def run_adjustment(report_json: Path, output: Path, enable_adjustment: bool = False) -> None:
+    payload = read_json(report_json) or {}
     findings = payload.get("findings", []) if isinstance(payload, dict) else []
 
     annotations: list[dict[str, Any]] = []
@@ -57,7 +51,7 @@ def main() -> int:
             continue
         base_risk = _as_int(row.get("risk"), 0)
         delta, rationale = _delta_for_row(row)
-        adjusted = max(0, min(100, base_risk + delta)) if args.enable_adjustment else base_risk
+        adjusted = max(0, min(100, base_risk + delta)) if enable_adjustment else base_risk
         annotations.append(
             {
                 "cve": row.get("cve"),
@@ -65,20 +59,30 @@ def main() -> int:
                 "base_risk": base_risk,
                 "suggested_delta": delta,
                 "adjusted_risk": adjusted,
-                "applied": bool(args.enable_adjustment),
+                "applied": bool(enable_adjustment),
                 "rationale": rationale,
             }
         )
 
     write_json(
-        args.output,
+        output,
         {
             "feature_flag": "processing.allow_llm_adjustment",
-            "adjustment_enabled": bool(args.enable_adjustment),
+            "adjustment_enabled": bool(enable_adjustment),
             "annotations": annotations,
-            "source_report": str(args.report_json),
+            "source_report": str(report_json),
         },
     )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report-json", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--enable-adjustment", action="store_true")
+    args = parser.parse_args()
+
+    run_adjustment(args.report_json, args.output, enable_adjustment=args.enable_adjustment)
     return 0
 
 

@@ -297,6 +297,10 @@ ls -R /path/to/target-repo/.probablyfine/reports
 
 In `--repo-root` mode, source findings are read from `.probablyfine/dependabot.json`
 and `.probablyfine/ecr_findings.json` when those files exist.
+If `.probablyfine/config.json` sets `processing.allow_llm_adjustment=true`, the
+pipeline also writes `report-<timestamp>-llm-adjustment.json` in the dated report
+directory. Scores are applied inside that artifact only when
+`--enable-llm-adjustment` or `PROBABLYFINE_ENABLE_LLM_ADJUSTMENT=1` is set.
 
 ## Scanner Wrapper
 

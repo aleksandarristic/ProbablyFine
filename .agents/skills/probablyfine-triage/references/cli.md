@@ -86,6 +86,10 @@ With `--repo-root /path/to/repo`, default outputs are written to:
 
 In `--repo-root` mode, input findings are read from `.probablyfine/dependabot.json`
 and `.probablyfine/ecr_findings.json` when present.
+If `.probablyfine/config.json` sets `processing.allow_llm_adjustment=true`, the
+orchestrator also emits `.probablyfine/reports/<YYYY-MM-DD>/report-<timestamp>-llm-adjustment.json`.
+Use `--enable-llm-adjustment` or `PROBABLYFINE_ENABLE_LLM_ADJUSTMENT=1` to mark
+the adjustment artifact as applied; otherwise it is annotation-only.
 
 Scanner writes per-repo run manifests to `.probablyfine/reports/<YYYY-MM-DD>/run-manifest-<run-id>.json`.
 

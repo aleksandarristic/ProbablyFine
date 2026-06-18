@@ -78,6 +78,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-096 `--repo-root` mode now reads `.probablyfine/dependabot.json` and `.probablyfine/ecr_findings.json` when present.
 - PF-097 compatibility triage wrapper now calls `triage_pipeline.main()` directly without subprocess execution.
 - PF-098 unsupported CVSS versions now render `final_vector` as `unknown` instead of composing malformed vectors.
+- PF-099 optional adjustment now runs from the orchestrator when enabled by config or explicit output arguments.
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.
