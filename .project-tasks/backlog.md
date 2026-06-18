@@ -306,3 +306,61 @@ Each task is a small, readable card with:
 - Type: DET
 - Depends on: PF-090, PF-091, PF-043
 - Acceptance criteria: repository includes a synthetic fixture bundle with Dependabot/ECR/context/threat-intel inputs and docs showing deterministic stage execution for exposure/runtime/threat ranking examples.
+
+## Pipeline Correctness Fixes
+
+### PF-096 Fix `--repo-root` mode producing empty reports
+- Status: TODO
+- Priority: P0
+- Type: DET
+- Depends on: PF-043, PF-050
+- Acceptance criteria: `triage_pipeline.py --repo-root` resolves `dependabot.json` and `ecr_findings.json` from `<repo-root>/.probablyfine/` when present; running the pipeline against the starter fixture produces a non-empty findings report.
+- Notes: `triage_pipeline.py:154-155` hardcodes `dependabot_path=None, ecr_path=None` in the `--repo-root` branch. Both paths must be resolved conditionally from `pf_dir`.
+
+### PF-097 Replace remaining subprocess call in `triage.py`
+- Status: TODO
+- Priority: P1
+- Type: DET
+- Depends on: PF-096
+- Acceptance criteria: `src/probablyfine/triage/triage.py` invokes `triage_pipeline.main()` via direct import, not `subprocess.run`; the `probablyfine-triage` entry point no longer shells out.
+- Notes: `triage.py:45` still does `subprocess.run(cmd, ...)`. This is the default CLI entry point and contradicts the subprocess-removal work done in `triage_pipeline.py`.
+
+### PF-098 Fix `final_vector` for unknown CVSS version
+- Status: TODO
+- Priority: P1
+- Type: DET
+- Depends on: PF-043
+- Acceptance criteria: when `cvss_base_version` returns `"unknown"`, `final_vector` returns `None` instead of appending CVSSv4 E: values to an unversioned or v2 vector string; the report renders `unknown` for `final_vector` in that case.
+- Notes: `pipeline_common.py:726` — the ternary `(_E_TO_CVSS3 if ver == "3" else _E_TO_CVSS4)` silently falls through to CVSSv4 for any non-v3 string, including v2 vectors and malformed inputs.
+
+### PF-099 Wire `optional_adjustment` stage into pipeline orchestrator
+- Status: TODO
+- Priority: P1
+- Type: LLM
+- Depends on: PF-044, PF-096
+- Acceptance criteria: `triage_pipeline.py --repo-root` checks `config.json` for `processing.allow_llm_adjustment`; when true, runs the adjustment stage and writes output to the dated report directory; when false (default), stage is skipped entirely.
+- Notes: `optional_adjustment.py` has a complete implementation but `triage_pipeline.py` never calls it. `PF-044` is marked DONE in backlog but the orchestrator integration was not completed.
+
+### PF-100 Remove duplicate `exposure_sub` from `score_and_rank.py`
+- Status: TODO
+- Priority: P2
+- Type: DET
+- Depends on: none
+- Acceptance criteria: `score_and_rank.py` removes its local `exposure_sub` definition and uses the one imported from `pipeline_common`; no functional change.
+- Notes: `score_and_rank.py:66-73` redefines `exposure_sub` identically to `pipeline_common.py:687-693`, shadowing the import at line 22.
+
+### PF-101 Add `fetch_status` to `build_threat_cache` return value
+- Status: TODO
+- Priority: P2
+- Type: DET
+- Depends on: PF-041
+- Acceptance criteria: `build_threat_cache` sets `fetch_status: "ok"` in its returned dict; `fetch_threat_intel.py:main()` no longer needs to patch it in post-call; threat intel cache files produced by the orchestrator contain the field.
+- Notes: `pipeline_common.py:424` — `build_threat_cache` returns a dict without `fetch_status`. `fetch_threat_intel.py:55` works around this by setting it manually. `triage_pipeline.py` calls `build_threat_cache` directly without this patch.
+
+### PF-102 Fix `rows_count_ok` self-check to be meaningful
+- Status: TODO
+- Priority: P3
+- Type: DET
+- Depends on: PF-043
+- Acceptance criteria: the self-check in the MD report verifies something that can actually fail — e.g. that the table row count equals the `summary.total` in the JSON — and returns `no` when a discrepancy exists.
+- Notes: `score_and_rank.py:193` — `source_counts` and `scored_rows` are incremented in lockstep after the same `continue` guard, so this check is always `yes` and catches nothing.

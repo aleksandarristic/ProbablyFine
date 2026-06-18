@@ -207,3 +207,16 @@
   - score/rank report output
 - Updated `.project-tasks/backlog.md` status for `PF-095` to `DONE`.
 - Updated `.project-tasks/current-sprint.md` to include `PF-095` in completed ahead-of-scope work.
+
+## 2026-06-18
+
+- Performed post-merge code review of `src/probablyfine/triage/` after integrating remote restructuring (scripts → src package).
+- Identified and documented seven correctness gaps and bugs as new backlog tasks `PF-096` through `PF-102`.
+- Summary of findings:
+  - `PF-096` (P0): `--repo-root` mode in `triage_pipeline.py` hardcodes `dependabot_path=None, ecr_path=None`, producing empty reports for all standard runs.
+  - `PF-097` (P1): `triage.py` entry point still shells out via `subprocess.run`; subprocess removal was applied to `triage_pipeline.py` but not propagated to the top-level CLI wrapper.
+  - `PF-098` (P1): `final_vector` falls through to CVSSv4 E: mapping when CVSS version is unknown, producing nonsense vectors for v2 or malformed inputs.
+  - `PF-099` (P1): `optional_adjustment` stage (`PF-044`) has a complete implementation but is never called by the pipeline orchestrator; `config.json` flag `processing.allow_llm_adjustment` is not checked.
+  - `PF-100` (P2): `exposure_sub` is defined identically in both `pipeline_common.py` and `score_and_rank.py`; the import in `score_and_rank.py` is dead code.
+  - `PF-101` (P2): `build_threat_cache` does not set `fetch_status` in its return value; `triage_pipeline.py` calls it directly without the manual patch applied in `fetch_threat_intel.py`.
+  - `PF-102` (P3): `rows_count_ok` self-check in score/rank report is always `yes` and catches no real discrepancies.
