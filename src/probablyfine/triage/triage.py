@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 import argparse
-import os
-import subprocess
 import sys
 from pathlib import Path
+
+from . import triage_pipeline
 
 
 def main() -> int:
@@ -20,10 +20,8 @@ def main() -> int:
     parser.add_argument("--offline", action="store_true", help="Do not fetch EPSS/KEV")
     args = parser.parse_args()
 
-    cmd = [
-        sys.executable,
-        "-m",
-        "probablyfine.triage.triage_pipeline",
+    pipeline_argv = [
+        "triage_pipeline.py",
         "--dependabot",
         str(args.dependabot),
         "--ecr",
@@ -36,14 +34,14 @@ def main() -> int:
         str(args.output),
     ]
     if args.offline:
-        cmd.append("--offline")
+        pipeline_argv.append("--offline")
 
-    src_dir = Path(__file__).resolve().parents[2]
-    env = os.environ.copy()
-    current = env.get("PYTHONPATH", "")
-    env["PYTHONPATH"] = str(src_dir) if not current else f"{src_dir}:{current}"
-    subprocess.run(cmd, check=True, env=env)
-    return 0
+    original_argv = sys.argv
+    try:
+        sys.argv = pipeline_argv
+        return triage_pipeline.main()
+    finally:
+        sys.argv = original_argv
 
 
 if __name__ == "__main__":

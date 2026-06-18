@@ -76,6 +76,7 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 ## Completed Correctness Fixes
 
 - PF-096 `--repo-root` mode now reads `.probablyfine/dependabot.json` and `.probablyfine/ecr_findings.json` when present.
+- PF-097 compatibility triage wrapper now calls `triage_pipeline.main()` directly without subprocess execution.
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

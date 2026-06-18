@@ -318,7 +318,7 @@ Each task is a small, readable card with:
 - Notes: `triage_pipeline.py:154-155` hardcodes `dependabot_path=None, ecr_path=None` in the `--repo-root` branch. Both paths must be resolved conditionally from `pf_dir`.
 
 ### PF-097 Replace remaining subprocess call in `triage.py`
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-096

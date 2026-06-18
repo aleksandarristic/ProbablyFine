@@ -227,3 +227,9 @@
 - `triage_pipeline.py --repo-root` now resolves `.probablyfine/dependabot.json` and `.probablyfine/ecr_findings.json` when present instead of always normalizing empty inputs.
 - Added a regression test that runs `--repo-root --offline` against a starter `.probablyfine/` fixture and verifies the report contains findings.
 - Updated README and triage CLI reference docs for repo-root input lookup behavior.
+
+## 2026-06-18
+
+- Completed `PF-097`.
+- Replaced the remaining `subprocess.run` based `triage.py` wrapper path with a direct call to `triage_pipeline.main()`.
+- Added a wrapper unit test that verifies the orchestrator is invoked directly and the caller argv is restored.
