@@ -39,6 +39,10 @@ def _find_latest_report(reports_root: Path) -> Optional[List[Dict[str, Any]]]:
     return None
 
 
+def _existing_file(path: Path) -> Optional[Path]:
+    return path if path.exists() else None
+
+
 def _stage_normalize(dependabot_path: Optional[Path], ecr_path: Optional[Path]) -> Dict[str, Any]:
     dependabot_data = read_json(dependabot_path) if dependabot_path else None
     ecr_data = read_json(ecr_path) if ecr_path else None
@@ -152,8 +156,8 @@ def main() -> int:
         previous_findings = _find_latest_report(report_dir.parent) if report_dir.parent.exists() else None
 
         _run(
-            dependabot_path=None,
-            ecr_path=None,
+            dependabot_path=_existing_file(pf_dir / "dependabot.json"),
+            ecr_path=_existing_file(pf_dir / "ecr_findings.json"),
             context_path=pf_dir / "context.json",
             normalized_out=cache_dir / "normalized_findings.json",
             threat_intel_out=cache_dir / "threat_intel.json",

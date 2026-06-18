@@ -25,6 +25,10 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-044 optional LLM score adjustment
 - PF-061 Codex-assisted environment authoring
 
+## Active Correctness Fixes
+
+- PF-096 through PF-102 post-merge correctness tasks
+
 ## Completed In Scope
 
 - PF-041 threat intel enrichment
@@ -68,6 +72,10 @@ Stand up the new `.probablyfine` processing model end-to-end for one repo using 
 - PF-093 runtime architecture docs refresh
 - PF-094 context model depth expansion
 - PF-095 synthetic triage fixture bundle
+
+## Completed Correctness Fixes
+
+- PF-096 `--repo-root` mode now reads `.probablyfine/dependabot.json` and `.probablyfine/ecr_findings.json` when present.
 ## Exit Criteria
 
 - One command processes one repo that contains `.probablyfine/`.

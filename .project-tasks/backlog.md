@@ -310,7 +310,7 @@ Each task is a small, readable card with:
 ## Pipeline Correctness Fixes
 
 ### PF-096 Fix `--repo-root` mode producing empty reports
-- Status: TODO
+- Status: DONE
 - Priority: P0
 - Type: DET
 - Depends on: PF-043, PF-050

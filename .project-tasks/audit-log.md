@@ -220,3 +220,10 @@
   - `PF-100` (P2): `exposure_sub` is defined identically in both `pipeline_common.py` and `score_and_rank.py`; the import in `score_and_rank.py` is dead code.
   - `PF-101` (P2): `build_threat_cache` does not set `fetch_status` in its return value; `triage_pipeline.py` calls it directly without the manual patch applied in `fetch_threat_intel.py`.
   - `PF-102` (P3): `rows_count_ok` self-check in score/rank report is always `yes` and catches no real discrepancies.
+
+## 2026-06-18
+
+- Completed `PF-096`.
+- `triage_pipeline.py --repo-root` now resolves `.probablyfine/dependabot.json` and `.probablyfine/ecr_findings.json` when present instead of always normalizing empty inputs.
+- Added a regression test that runs `--repo-root --offline` against a starter `.probablyfine/` fixture and verifies the report contains findings.
+- Updated README and triage CLI reference docs for repo-root input lookup behavior.

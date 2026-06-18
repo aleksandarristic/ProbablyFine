@@ -295,6 +295,9 @@ ls -R /path/to/target-repo/.probablyfine/reports
 - `.probablyfine/reports/<YYYY-MM-DD>/report-<timestamp>.md`
 - `.probablyfine/reports/<YYYY-MM-DD>/report-<timestamp>.json`
 
+In `--repo-root` mode, source findings are read from `.probablyfine/dependabot.json`
+and `.probablyfine/ecr_findings.json` when those files exist.
+
 ## Scanner Wrapper
 
 The scanner wrapper validates `.probablyfine` contract/schema requirements per target repo and then runs the triage pipeline for each repository path provided.
