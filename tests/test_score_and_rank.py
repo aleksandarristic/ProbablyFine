@@ -20,7 +20,7 @@ class ScoreAndRankTests(unittest.TestCase):
                     "package": "openssl",
                     "severity": "critical",
                     "fix_version": "3.0.13",
-                    "cvss4_base_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+                    "cvss_base_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
                     "sources": ["ECR", "Dependabot"],
                     "source_bucket": "Both",
                     "evidence_ids": ["b", "a"],
@@ -30,7 +30,7 @@ class ScoreAndRankTests(unittest.TestCase):
                     "package": "zlib",
                     "severity": "medium",
                     "fix_version": None,
-                    "cvss4_base_vector": None,
+                    "cvss_base_vector": None,
                     "sources": ["ECR"],
                     "source_bucket": "ECR-only",
                     "evidence_ids": ["z"],
@@ -105,6 +105,61 @@ class ScoreAndRankTests(unittest.TestCase):
             self.assertGreater(findings[0]["risk"], findings[1]["risk"])
             self.assertIn("/E:A", findings[0]["final_vector"])
             self.assertEqual(findings[1]["final_vector"], "unknown")
+
+    def test_unknown_cvss_version_renders_unknown_final_vector(self) -> None:
+        normalized = {
+            "inputs": {"dependabot.json": "present", "ecr_findings.json": "missing"},
+            "items": [
+                {
+                    "cve": "CVE-2024-1000",
+                    "package": "legacy-lib",
+                    "severity": "high",
+                    "fix_version": "1.2.3",
+                    "cvss_base_vector": "CVSS:2.0/AV:N/AC:L/Au:N/C:P/I:P/A:P",
+                    "sources": ["Dependabot"],
+                    "source_bucket": "Dependabot-only",
+                    "evidence_ids": ["dep-1"],
+                }
+            ],
+        }
+        threat_intel = {
+            "items": [
+                {"cve": "CVE-2024-1000", "epss_probability": 0.95, "cisa_kev_listed": False}
+            ]
+        }
+        env_overrides = {
+            "context_json": "present",
+            "overrides": {
+                "CR": "CR:H",
+                "IR": "IR:H",
+                "AR": "AR:H",
+                "MAV": "MAV:N",
+                "MAC": "MAC:X",
+                "MPR": "MPR:X",
+            },
+            "runtime_presence_default": "unknown",
+            "runtime_presence_by_package": {},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            md_out = tmp_path / "report.md"
+            json_out = tmp_path / "report.json"
+            score_and_rank.run_scoring(
+                normalized=normalized,
+                threat=threat_intel,
+                env_overrides=env_overrides,
+                output_md=md_out,
+                output_json=json_out,
+                intel_fetch_performed="no",
+            )
+
+            payload = json.loads(json_out.read_text(encoding="utf-8"))
+            finding = payload["findings"][0]
+            self.assertEqual(finding["base_vector"], "CVSS:2.0/AV:N/AC:L/Au:N/C:P/I:P/A:P")
+            self.assertEqual(finding["final_vector"], "unknown")
+            self.assertIn("CVSS:2.0/AV:N/AC:L/Au:N/C:P/I:P/A:P", md_out.read_text(encoding="utf-8"))
+            self.assertIn("| unknown |", md_out.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

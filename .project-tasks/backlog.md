@@ -326,7 +326,7 @@ Each task is a small, readable card with:
 - Notes: `triage.py:45` still does `subprocess.run(cmd, ...)`. This is the default CLI entry point and contradicts the subprocess-removal work done in `triage_pipeline.py`.
 
 ### PF-098 Fix `final_vector` for unknown CVSS version
-- Status: TODO
+- Status: DONE
 - Priority: P1
 - Type: DET
 - Depends on: PF-043

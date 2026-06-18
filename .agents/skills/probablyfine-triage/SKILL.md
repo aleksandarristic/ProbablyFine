@@ -123,13 +123,13 @@ Threat rank:
 
 ## CVSS Vector Rules
 
-If Base vector exists in inputs:
+If a supported CVSS v3.x or v4.x Base vector exists in inputs:
 - keep Base unchanged
 - append `E`
 - append non-`X` Environmental metrics
 
-If Base missing:
-- `CVSS4_BaseVector = unknown`
+If Base is missing or has an unsupported/unknown CVSS version:
+- `CVSS4_BaseVector = unknown` when missing, otherwise the original unsupported input vector
 - `CVSS4_FinalVector = unknown`
 
 ## Runtime Presence

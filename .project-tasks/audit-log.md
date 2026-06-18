@@ -233,3 +233,10 @@
 - Completed `PF-097`.
 - Replaced the remaining `subprocess.run` based `triage.py` wrapper path with a direct call to `triage_pipeline.main()`.
 - Added a wrapper unit test that verifies the orchestrator is invoked directly and the caller argv is restored.
+
+## 2026-06-18
+
+- Completed `PF-098`.
+- `final_vector` now returns `None` when the base vector version is unknown, preventing CVSSv4 threat metrics from being appended to CVSSv2 or malformed vectors.
+- Added a scoring regression test that verifies reports render `final_vector` as `unknown` for a CVSSv2 base vector.
+- Updated the triage skill vector rules to document unsupported-version handling.

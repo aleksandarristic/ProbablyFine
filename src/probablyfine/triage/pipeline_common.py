@@ -723,6 +723,8 @@ def final_vector(base_vector: Optional[str], e: str, env: Dict[str, str]) -> Opt
     if not base_vector:
         return None
     ver = cvss_base_version(base_vector)
+    if ver == "unknown":
+        return None
     e_val = (_E_TO_CVSS3 if ver == "3" else _E_TO_CVSS4).get(e, "X")
     parts = [base_vector, f"E:{e_val}"]
     for key in ("CR", "IR", "AR", "MAV", "MAC", "MPR"):
